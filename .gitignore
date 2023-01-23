@@ -50,3 +50,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+core
+.idea
+src/gattclient
+compile_commands.json
