@@ -145,7 +145,7 @@ static bool mosq_publish_state(double current, double voltage) {
                      tm_buffer, info.uptime / 3600, info.loads[0] / 65536.0, temp_C);
         } else {
             snprintf(buf, sizeof(buf) - 1,
-                     "{\"Time\":\"%s\", \"Uptime\": %ld, \"LoadAverage\":%.2f, \"CPUTemp\":%d, \"Current\":%0.3f, \"Voltage\":%0.3f, \"Power\":%0.3f}",
+                     "{\"Time\":\"%s\", \"Uptime\": %ld, \"LoadAverage\":%.2f, \"CPUTemp\":%d, \"Current\":%0.2f, \"Voltage\":%0.2f, \"Power\":%0.2f}",
                      tm_buffer, info.uptime / 3600, info.loads[0] / 65536.0, temp_C, current, voltage,
                      current * voltage);
         }

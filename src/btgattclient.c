@@ -103,11 +103,11 @@ struct client {
     /// socket
     int fd;
     /// pointer to a bt_att structure
-    struct bt_att * att;
+    struct bt_att *att;
     /// pointer to a gatt_db structure
-    struct gatt_db * db;
+    struct gatt_db *db;
     /// pointer to a bt_gatt_client structure
-    struct bt_gatt_client * gatt;
+    struct bt_gatt_client *gatt;
     /// session id
     unsigned int reliable_session_id;
 };
@@ -131,50 +131,50 @@ static void print_prompt(void) {
  * @param ecode	error code (BT_ATT mostly)
  * @return 		ascii string full english ecode label
  */
-static const char * ecode_to_string(uint8_t ecode) {
+static const char *ecode_to_string(uint8_t ecode) {
     switch (ecode) {
-    case BT_ATT_ERROR_INVALID_HANDLE:
-        return "Invalid Handle";
-    case BT_ATT_ERROR_READ_NOT_PERMITTED:
-        return "Read Not Permitted";
-    case BT_ATT_ERROR_WRITE_NOT_PERMITTED:
-        return "Write Not Permitted";
-    case BT_ATT_ERROR_INVALID_PDU:
-        return "Invalid PDU";
-    case BT_ATT_ERROR_AUTHENTICATION:
-        return "Authentication Required";
-    case BT_ATT_ERROR_REQUEST_NOT_SUPPORTED:
-        return "Request Not Supported";
-    case BT_ATT_ERROR_INVALID_OFFSET:
-        return "Invalid Offset";
-    case BT_ATT_ERROR_AUTHORIZATION:
-        return "Authorization Required";
-    case BT_ATT_ERROR_PREPARE_QUEUE_FULL:
-        return "Prepare Write Queue Full";
-    case BT_ATT_ERROR_ATTRIBUTE_NOT_FOUND:
-        return "Attribute Not Found";
-    case BT_ATT_ERROR_ATTRIBUTE_NOT_LONG:
-        return "Attribute Not Long";
-    case BT_ATT_ERROR_INSUFFICIENT_ENCRYPTION_KEY_SIZE:
-        return "Insuficient Encryption Key Size";
-    case BT_ATT_ERROR_INVALID_ATTRIBUTE_VALUE_LEN:
-        return "Invalid Attribute value len";
-    case BT_ATT_ERROR_UNLIKELY:
-        return "Unlikely Error";
-    case BT_ATT_ERROR_INSUFFICIENT_ENCRYPTION:
-        return "Insufficient Encryption";
-    case BT_ATT_ERROR_UNSUPPORTED_GROUP_TYPE:
-        return "Group type Not Supported";
-    case BT_ATT_ERROR_INSUFFICIENT_RESOURCES:
-        return "Insufficient Resources";
-    case BT_ERROR_CCC_IMPROPERLY_CONFIGURED:
-        return "CCC Improperly Configured";
-    case BT_ERROR_ALREADY_IN_PROGRESS:
-        return "Procedure Already in Progress";
-    case BT_ERROR_OUT_OF_RANGE:
-        return "Out of Range";
-    default:
-        return "Unknown error type";
+        case BT_ATT_ERROR_INVALID_HANDLE:
+            return "Invalid Handle";
+        case BT_ATT_ERROR_READ_NOT_PERMITTED:
+            return "Read Not Permitted";
+        case BT_ATT_ERROR_WRITE_NOT_PERMITTED:
+            return "Write Not Permitted";
+        case BT_ATT_ERROR_INVALID_PDU:
+            return "Invalid PDU";
+        case BT_ATT_ERROR_AUTHENTICATION:
+            return "Authentication Required";
+        case BT_ATT_ERROR_REQUEST_NOT_SUPPORTED:
+            return "Request Not Supported";
+        case BT_ATT_ERROR_INVALID_OFFSET:
+            return "Invalid Offset";
+        case BT_ATT_ERROR_AUTHORIZATION:
+            return "Authorization Required";
+        case BT_ATT_ERROR_PREPARE_QUEUE_FULL:
+            return "Prepare Write Queue Full";
+        case BT_ATT_ERROR_ATTRIBUTE_NOT_FOUND:
+            return "Attribute Not Found";
+        case BT_ATT_ERROR_ATTRIBUTE_NOT_LONG:
+            return "Attribute Not Long";
+        case BT_ATT_ERROR_INSUFFICIENT_ENCRYPTION_KEY_SIZE:
+            return "Insuficient Encryption Key Size";
+        case BT_ATT_ERROR_INVALID_ATTRIBUTE_VALUE_LEN:
+            return "Invalid Attribute value len";
+        case BT_ATT_ERROR_UNLIKELY:
+            return "Unlikely Error";
+        case BT_ATT_ERROR_INSUFFICIENT_ENCRYPTION:
+            return "Insufficient Encryption";
+        case BT_ATT_ERROR_UNSUPPORTED_GROUP_TYPE:
+            return "Group type Not Supported";
+        case BT_ATT_ERROR_INSUFFICIENT_RESOURCES:
+            return "Insufficient Resources";
+        case BT_ERROR_CCC_IMPROPERLY_CONFIGURED:
+            return "CCC Improperly Configured";
+        case BT_ERROR_ALREADY_IN_PROGRESS:
+            return "Procedure Already in Progress";
+        case BT_ERROR_OUT_OF_RANGE:
+            return "Out of Range";
+        default:
+            return "Unknown error type";
     }
 }
 
@@ -184,7 +184,7 @@ static const char * ecode_to_string(uint8_t ecode) {
  * @param err		error code associated with disconnect
  * @param user_data	user data pointer (not used)
  */
-static void att_disconnect_cb(int err, __attribute__((unused)) void * user_data) {
+static void att_disconnect_cb(int err, __attribute__((unused)) void *user_data) {
     daemon_log(LOG_ERR, "Device disconnected: %s", strerror(err));
     mainloop_quit();
 }
@@ -196,8 +196,8 @@ static void att_disconnect_cb(int err, __attribute__((unused)) void * user_data)
  * @param str		message to print
  * @param user_data pointer to prefix
  */
-static void att_debug_cb(const char * str, void * user_data) {
-    const char * prefix = user_data;
+static void att_debug_cb(const char *str, void *user_data) {
+    const char *prefix = user_data;
     PRLOG(COLOR_BOLDGRAY "%s" COLOR_BOLDWHITE "%s" COLOR_OFF, prefix, str);
 }
 
@@ -208,16 +208,16 @@ static void att_debug_cb(const char * str, void * user_data) {
  * @param str		message to print
  * @param user_data	pointer to prefix
  */
-static void gatt_debug_cb(const char * str, void * user_data) {
-    const char * prefix = user_data;
+static void gatt_debug_cb(const char *str, void *user_data) {
+    const char *prefix = user_data;
 
     PRLOG(COLOR_GREEN "%s%s" COLOR_OFF, prefix, str);
 }
 
-static void ready_cb(bool success, uint8_t att_ecode, void * user_data);
+static void ready_cb(bool success, uint8_t att_ecode, void *user_data);
 
 static void service_changed_cb(uint16_t start_handle, uint16_t end_handle,
-                               void * user_data);
+                               void *user_data);
 
 /**
  * log discovered service
@@ -225,7 +225,7 @@ static void service_changed_cb(uint16_t start_handle, uint16_t end_handle,
  * @param attr	gatt_db_attribute structure (service data)
  * @param str	comment about the logged service ("Service added", "Service removed"...)
  */
-static void log_service_event(struct gatt_db_attribute * attr, const char * str) {
+static void log_service_event(struct gatt_db_attribute *attr, const char *str) {
     char uuid_str[MAX_LEN_UUID_STR];
     bt_uuid_t uuid;
     uint16_t start, end;
@@ -245,7 +245,7 @@ static void log_service_event(struct gatt_db_attribute * attr, const char * str)
  * @param attr
  * @param user_data
  */
-static void service_added_cb(struct gatt_db_attribute * attr, __attribute__((unused)) void * user_data) {
+static void service_added_cb(struct gatt_db_attribute *attr, __attribute__((unused)) void *user_data) {
     log_service_event(attr, "Service Added");
 }
 
@@ -255,7 +255,7 @@ static void service_added_cb(struct gatt_db_attribute * attr, __attribute__((unu
  * @param attr
  * @param user_data
  */
-static void service_removed_cb(struct gatt_db_attribute * attr, __attribute__((unused)) void * user_data) {
+static void service_removed_cb(struct gatt_db_attribute *attr, __attribute__((unused)) void *user_data) {
     log_service_event(attr, "Service Removed");
 }
 
@@ -266,8 +266,8 @@ static void service_removed_cb(struct gatt_db_attribute * attr, __attribute__((u
  * @param mtu	selected pdu size
  * @return gatt client structure
  */
-static struct client * client_create(int fd, uint16_t mtu) {
-    struct client * cli;
+static struct client *client_create(int fd, uint16_t mtu) {
+    struct client *cli;
 
     cli = new0(struct client, 1);
     if (!cli) {
@@ -340,7 +340,7 @@ static struct client * client_create(int fd, uint16_t mtu) {
  *
  * @param cli client pointer to destroy
  */
-static void client_destroy(struct client * cli) {
+static void client_destroy(struct client *cli) {
     bt_gatt_client_unref(cli->gatt);
     bt_att_unref(cli->att);
     free(cli);
@@ -351,7 +351,7 @@ static void client_destroy(struct client * cli) {
  *
  * @param uuid
  */
-static const char * print_uuid(const bt_uuid_t * uuid) {
+static const char *print_uuid(const bt_uuid_t *uuid) {
     static char uuid_str[MAX_LEN_UUID_STR + 1];
     bt_uuid_t uuid128;
     bt_uuid_to_uuid128(uuid, &uuid128);
@@ -366,10 +366,10 @@ static const char * print_uuid(const bt_uuid_t * uuid) {
  * @param attr			gatt_db_attribute to print
  * @param user_data		client structure pointer
  */
-static void print_incl(struct gatt_db_attribute * attr, void * user_data) {
-    struct client * cli = user_data;
+static void print_incl(struct gatt_db_attribute *attr, void *user_data) {
+    struct client *cli = user_data;
     uint16_t handle, start, end;
-    struct gatt_db_attribute * service;
+    struct gatt_db_attribute *service;
     bt_uuid_t uuid;
 
     if (!gatt_db_attribute_get_incl_data(attr, &handle, &start, &end))
@@ -382,8 +382,8 @@ static void print_incl(struct gatt_db_attribute * attr, void * user_data) {
     gatt_db_attribute_get_service_uuid(service, &uuid);
 
     daemon_log(LOG_INFO, "\t  " COLOR_GREEN "include" COLOR_OFF " - handle: "
-               "0x%04x, - start: 0x%04x, end: 0x%04x,"
-               "uuid: %s", handle, start, end, print_uuid(&uuid));
+                         "0x%04x, - start: 0x%04x, end: 0x%04x,"
+                         "uuid: %s", handle, start, end, print_uuid(&uuid));
 }
 
 /**
@@ -392,19 +392,19 @@ static void print_incl(struct gatt_db_attribute * attr, void * user_data) {
  * @param attr
  * @param user_data
  */
-static void print_desc(struct gatt_db_attribute * attr, __attribute__((unused)) void * user_data) {
+static void print_desc(struct gatt_db_attribute *attr, __attribute__((unused)) void *user_data) {
     daemon_log(LOG_INFO, "\t\t  " COLOR_MAGENTA "descr" COLOR_OFF
-               " - handle: 0x%04x, uuid: %s",
+                         " - handle: 0x%04x, uuid: %s",
                gatt_db_attribute_get_handle(attr), print_uuid(gatt_db_attribute_get_type(attr)));
 }
 
-static void register_notify_cb(uint16_t att_ecode, void * user_data);
+static void register_notify_cb(uint16_t att_ecode, void *user_data);
 
-static void notify_cb(uint16_t value_handle, const uint8_t * value,
-                      uint16_t length, __attribute__((unused)) void * user_data);
+static void notify_cb(uint16_t value_handle, const uint8_t *value,
+                      uint16_t length, __attribute__((unused)) void *user_data);
 
-static void subscribe_chrc(struct gatt_db_attribute * attr, void * user_data) {
-    struct client * cli = user_data;
+static void subscribe_chrc(struct gatt_db_attribute *attr, void *user_data) {
+    struct client *cli = user_data;
     uint16_t handle, value_handle;
     uint8_t properties;
     bt_uuid_t uuid;
@@ -416,8 +416,8 @@ static void subscribe_chrc(struct gatt_db_attribute * attr, void * user_data) {
         return;
     if (uuid.value.u32 == 0xe1ff0000) {
         unsigned int id = bt_gatt_client_register_notify(cli->gatt, value_handle,
-                          register_notify_cb,
-                          notify_cb, NULL, NULL);
+                                                         register_notify_cb,
+                                                         notify_cb, NULL, NULL);
         if (!id) {
             daemon_log(LOG_ERR, "Failed to register notify handler");
             return;
@@ -433,7 +433,7 @@ static void subscribe_chrc(struct gatt_db_attribute * attr, void * user_data) {
  * @param attr
  * @param user_data
  */
-static void print_chrc(struct gatt_db_attribute * attr, __attribute__((unused)) void * user_data) {
+static void print_chrc(struct gatt_db_attribute *attr, __attribute__((unused)) void *user_data) {
     uint16_t handle, value_handle;
     uint8_t properties;
     bt_uuid_t uuid;
@@ -445,8 +445,8 @@ static void print_chrc(struct gatt_db_attribute * attr, __attribute__((unused)) 
         return;
 
     daemon_log(LOG_INFO, "\t  " COLOR_YELLOW "charac" COLOR_OFF
-               " - start: 0x%04x, value: 0x%04x, "
-               "props: 0x%02x, uuid: %s",
+                         " - start: 0x%04x, value: 0x%04x, "
+                         "props: 0x%02x, uuid: %s",
                handle, value_handle, properties, print_uuid(&uuid));
 
     gatt_db_service_foreach_desc(attr, print_desc, NULL);
@@ -458,8 +458,8 @@ static void print_chrc(struct gatt_db_attribute * attr, __attribute__((unused)) 
  * @param attr
  * @param user_data
  */
-static void print_service(struct gatt_db_attribute * attr, void * user_data) {
-    struct client * cli = user_data;
+static void print_service(struct gatt_db_attribute *attr, void *user_data) {
+    struct client *cli = user_data;
     uint16_t start, end;
     bool primary;
     bt_uuid_t uuid;
@@ -469,7 +469,7 @@ static void print_service(struct gatt_db_attribute * attr, void * user_data) {
         return;
 
     daemon_log(LOG_INFO, COLOR_RED "service" COLOR_OFF " - start: 0x%04x, "
-               "end: 0x%04x, type: %s, uuid: %s",
+                         "end: 0x%04x, type: %s, uuid: %s",
                start, end, primary ? "primary" : "secondary", print_uuid(&uuid));
 
     gatt_db_service_foreach_incl(attr, print_incl, cli);
@@ -482,7 +482,7 @@ static void print_service(struct gatt_db_attribute * attr, void * user_data) {
  *
  * @param cli	client pointer
  */
-static void print_services(struct client * cli) {
+static void print_services(struct client *cli) {
     gatt_db_foreach_service(cli->db, NULL, print_service, cli);
 }
 
@@ -492,7 +492,7 @@ static void print_services(struct client * cli) {
  * @param cli
  * @param uuid
  */
-static void print_services_by_uuid(struct client * cli, const bt_uuid_t * uuid) {
+static void print_services_by_uuid(struct client *cli, const bt_uuid_t *uuid) {
     gatt_db_foreach_service(cli->db, uuid, print_service, cli);
 }
 
@@ -502,7 +502,7 @@ static void print_services_by_uuid(struct client * cli, const bt_uuid_t * uuid) 
  * @param cli
  * @param handle
  */
-static void print_services_by_handle(struct client * cli, __attribute__((unused)) uint16_t handle) {
+static void print_services_by_handle(struct client *cli, __attribute__((unused)) uint16_t handle) {
     /* TODO: Filter by handle */
     gatt_db_foreach_service(cli->db, NULL, print_service, cli);
 }
@@ -514,8 +514,8 @@ static void print_services_by_handle(struct client * cli, __attribute__((unused)
  * @param att_ecode		att error code
  * @param user_data		pointer to client structure
  */
-static void ready_cb(bool success, uint8_t att_ecode, void * user_data) {
-    struct client * cli = user_data;
+static void ready_cb(bool success, uint8_t att_ecode, void *user_data) {
+    struct client *cli = user_data;
 
     if (!success) {
         PRLOG("GATT discovery procedures failed - error code: 0x%02x",
@@ -537,8 +537,8 @@ static void ready_cb(bool success, uint8_t att_ecode, void * user_data) {
  * @param user_data		client pointer
  */
 static void service_changed_cb(uint16_t start_handle, uint16_t end_handle,
-                               void * user_data) {
-    struct client * cli = user_data;
+                               void *user_data) {
+    struct client *cli = user_data;
 
     printf("\nService Changed handled - start: 0x%04x end: 0x%04x\n",
            start_handle, end_handle);
@@ -569,8 +569,8 @@ static void services_usage(void) {
  * @param argc			argument counter (and actual count)
  * @return				true = success false = error
  */
-static bool parse_args(char * str, int expected_argc, char ** argv, int * argc) {
-    char ** ap;
+static bool parse_args(char *str, int expected_argc, char **argv, int *argc) {
+    char **ap;
 
     for (ap = argv; (*ap = strsep(&str, " \t")) != NULL;) {
         if (**ap == '\0')
@@ -593,8 +593,8 @@ static bool parse_args(char * str, int expected_argc, char ** argv, int * argc) 
  * @param cmd_str	one of the possible command (help to get a list)
  * 					&lt;command&gt; --help to have a help on that command
  */
-static void cmd_services(struct client * cli, char * cmd_str) {
-    char * argv[3];
+static void cmd_services(struct client *cli, char *cmd_str) {
+    char *argv[3];
     int argc = 0;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
@@ -630,7 +630,7 @@ static void cmd_services(struct client * cli, char * cmd_str) {
         print_services_by_uuid(cli, &uuid);
     } else if (!strcmp(argv[0], "-a") || !strcmp(argv[0], "--handle")) {
         uint16_t handle;
-        char * endptr = NULL;
+        char *endptr = NULL;
 
         handle = strtol(argv[1], &endptr, 0);
         if (!endptr || *endptr != '\0') {
@@ -660,8 +660,8 @@ static void read_multiple_usage(void) {
  * @param user_data		not used
  */
 static void read_multiple_cb(bool success, uint8_t att_ecode,
-                             const uint8_t * value, uint16_t length,
-                             __attribute__((unused)) void * user_data) {
+                             const uint8_t *value, uint16_t length,
+                             __attribute__((unused)) void *user_data) {
 
     if (!success) {
         PRLOG("\nRead multiple request failed: 0x%02x", att_ecode);
@@ -679,12 +679,12 @@ static void read_multiple_cb(bool success, uint8_t att_ecode,
  * @param cli		pointer to the client structure
  * @param cmd_str	command string for read multiple
  */
-static void cmd_read_multiple(struct client * cli, char * cmd_str) {
+static void cmd_read_multiple(struct client *cli, char *cmd_str) {
     int argc = 0;
-    uint16_t * value;
-    char * argv[512];
+    uint16_t *value;
+    char *argv[512];
     int i;
-    char * endptr = NULL;
+    char *endptr = NULL;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
         daemon_log(LOG_ERR, "GATT client not initialized");
@@ -734,8 +734,8 @@ static void read_value_usage(void) {
  * @param length		size of vector
  * @param user_data		not used
  */
-static void read_cb(bool success, uint8_t att_ecode, const uint8_t * value,
-                    uint16_t length, __attribute__((unused)) void * user_data) {
+static void read_cb(bool success, uint8_t att_ecode, const uint8_t *value,
+                    uint16_t length, __attribute__((unused)) void *user_data) {
 
     if (!success) {
         PRLOG("\nRead request failed: %s (0x%02x)",
@@ -754,11 +754,11 @@ static void read_cb(bool success, uint8_t att_ecode, const uint8_t * value,
  * @param cli		pointer to the client structure
  * @param cmd_str	command string for read value
  */
-static void cmd_read_value(struct client * cli, char * cmd_str) {
-    char * argv[2];
+static void cmd_read_value(struct client *cli, char *cmd_str) {
+    char *argv[2];
     int argc = 0;
     uint16_t handle;
-    char * endptr = NULL;
+    char *endptr = NULL;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
         daemon_log(LOG_INFO, "GATT client not initialized");
@@ -794,12 +794,12 @@ static void read_long_value_usage(void) {
  * @param cli		pointer to the client structure
  * @param cmd_str	command string for read long value
  */
-static void cmd_read_long_value(struct client * cli, char * cmd_str) {
-    char * argv[3];
+static void cmd_read_long_value(struct client *cli, char *cmd_str) {
+    char *argv[3];
     int argc = 0;
     uint16_t handle;
     uint16_t offset;
-    char * endptr = NULL;
+    char *endptr = NULL;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
         daemon_log(LOG_ERR, "GATT client not initialized");
@@ -842,9 +842,9 @@ static void write_value_usage(void) {
 }
 
 static struct option write_value_options[] = {
-    {"without-response", 0, 0, 'w'},
-    {"signed-write",     0, 0, 's'},
-    {}
+        {"without-response", 0, 0, 'w'},
+        {"signed-write",     0, 0, 's'},
+        {}
 };
 
 /**
@@ -854,7 +854,7 @@ static struct option write_value_options[] = {
  * @param att_ecode		att error code
  * @param user_data		not used
  */
-static void write_cb(bool success, uint8_t att_ecode, __attribute__((unused)) void * user_data) {
+static void write_cb(bool success, uint8_t att_ecode, __attribute__((unused)) void *user_data) {
     if (success) {
         PRLOG("\nWrite successful");
     } else {
@@ -869,15 +869,15 @@ static void write_cb(bool success, uint8_t att_ecode, __attribute__((unused)) vo
  * @param cli		pointer to the client structure
  * @param cmd_str	command string for write value
  */
-static void cmd_write_value(struct client * cli, char * cmd_str) {
+static void cmd_write_value(struct client *cli, char *cmd_str) {
     int opt, i;
-    char * argvbuf[516];
-    char ** argv = argvbuf;
+    char *argvbuf[516];
+    char **argv = argvbuf;
     int argc = 1;
     uint16_t handle;
-    char * endptr = NULL;
+    char *endptr = NULL;
     int length;
-    uint8_t * value = NULL;
+    uint8_t *value = NULL;
     bool without_response = false;
     bool signed_write = false;
 
@@ -897,15 +897,15 @@ static void cmd_write_value(struct client * cli, char * cmd_str) {
     while ((opt = getopt_long(argc, argv, "+ws", write_value_options,
                               NULL)) != -1) {
         switch (opt) {
-        case 'w':
-            without_response = true;
-            break;
-        case 's':
-            signed_write = true;
-            break;
-        default:
-            write_value_usage();
-            return;
+            case 'w':
+                without_response = true;
+                break;
+            case 's':
+                signed_write = true;
+                break;
+            default:
+                write_value_usage();
+                return;
         }
     }
 
@@ -946,7 +946,7 @@ static void cmd_write_value(struct client * cli, char * cmd_str) {
 
             value[i - 1] = strtol(argv[i], &endptr, 0);
             if (endptr == argv[i] || *endptr != '\0'
-                    || errno == ERANGE) {
+                || errno == ERANGE) {
                 daemon_log(LOG_ERR, "Invalid value byte: %s",
                            argv[i]);
                 goto done;
@@ -956,9 +956,9 @@ static void cmd_write_value(struct client * cli, char * cmd_str) {
 
     if (without_response) {
         if (!bt_gatt_client_write_without_response(cli->gatt, handle,
-                signed_write, value, length)) {
+                                                   signed_write, value, length)) {
             daemon_log(LOG_ERR, "Failed to initiate write without response "
-                       "procedure");
+                                "procedure");
             goto done;
         }
 
@@ -971,7 +971,7 @@ static void cmd_write_value(struct client * cli, char * cmd_str) {
                                     NULL, NULL))
         daemon_log(LOG_ERR, "Failed to initiate write procedure");
 
-done:
+    done:
     free(value);
 }
 
@@ -988,8 +988,8 @@ static void write_long_value_usage(void) {
 }
 
 static struct option write_long_value_options[] = {
-    {"reliable-write", 0, 0, 'r'},
-    {}
+        {"reliable-write", 0, 0, 'r'},
+        {}
 };
 
 /**
@@ -1001,7 +1001,7 @@ static struct option write_long_value_options[] = {
  * @param user_data			not used
  */
 static void write_long_cb(bool success, bool reliable_error, uint8_t att_ecode,
-                          __attribute__((unused)) void * user_data) {
+                          __attribute__((unused)) void *user_data) {
     if (success) {
         PRLOG("Write successful");
     } else if (reliable_error) {
@@ -1018,16 +1018,16 @@ static void write_long_cb(bool success, bool reliable_error, uint8_t att_ecode,
  * @param cli		pointer to the client structure
  * @param cmd_str	command string for write long value
  */
-static void cmd_write_long_value(struct client * cli, char * cmd_str) {
+static void cmd_write_long_value(struct client *cli, char *cmd_str) {
     int opt, i;
-    char * argvbuf[516];
-    char ** argv = argvbuf;
+    char *argvbuf[516];
+    char **argv = argvbuf;
     int argc = 1;
     uint16_t handle;
     uint16_t offset;
-    char * endptr = NULL;
+    char *endptr = NULL;
     int length;
-    uint8_t * value = NULL;
+    uint8_t *value = NULL;
     bool reliable_writes = false;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
@@ -1046,12 +1046,12 @@ static void cmd_write_long_value(struct client * cli, char * cmd_str) {
     while ((opt = getopt_long(argc, argv, "+r", write_long_value_options,
                               NULL)) != -1) {
         switch (opt) {
-        case 'r':
-            reliable_writes = true;
-            break;
-        default:
-            write_long_value_usage();
-            return;
+            case 'r':
+                reliable_writes = true;
+                break;
+            default:
+                write_long_value_usage();
+                return;
         }
     }
 
@@ -1100,7 +1100,7 @@ static void cmd_write_long_value(struct client * cli, char * cmd_str) {
 
             value[i - 2] = strtol(argv[i], &endptr, 0);
             if (endptr == argv[i] || *endptr != '\0'
-                    || errno == ERANGE) {
+                || errno == ERANGE) {
                 daemon_log(LOG_ERR, "Invalid value byte: %s",
                            argv[i]);
                 free(value);
@@ -1131,8 +1131,8 @@ static void write_prepare_usage(void) {
 }
 
 static struct option write_prepare_options[] = {
-    {"session-id", 1, 0, 's'},
-    {}
+        {"session-id", 1, 0, 's'},
+        {}
 };
 
 /**
@@ -1141,17 +1141,17 @@ static struct option write_prepare_options[] = {
  * @param cli		pointer to the client structure
  * @param cmd_str	write prepare command string
  */
-static void cmd_write_prepare(struct client * cli, char * cmd_str) {
+static void cmd_write_prepare(struct client *cli, char *cmd_str) {
     int opt, i;
-    char * argvbuf[516];
-    char ** argv = argvbuf;
+    char *argvbuf[516];
+    char **argv = argvbuf;
     int argc = 0;
     unsigned int id = 0;
     uint16_t handle;
     uint16_t offset;
-    char * endptr = NULL;
+    char *endptr = NULL;
     unsigned int length;
-    uint8_t * value = NULL;
+    uint8_t *value = NULL;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
         daemon_log(LOG_ERR, "GATT client not initialized");
@@ -1172,18 +1172,18 @@ static void cmd_write_prepare(struct client * cli, char * cmd_str) {
     while ((opt = getopt_long(argc, argv, "s:", write_prepare_options,
                               NULL)) != -1) {
         switch (opt) {
-        case 's':
-            if (!optarg) {
+            case 's':
+                if (!optarg) {
+                    write_prepare_usage();
+                    return;
+                }
+
+                id = atoi(optarg);
+
+                break;
+            default:
                 write_prepare_usage();
                 return;
-            }
-
-            id = atoi(optarg);
-
-            break;
-        default:
-            write_prepare_usage();
-            return;
         }
     }
 
@@ -1249,18 +1249,18 @@ static void cmd_write_prepare(struct client * cli, char * cmd_str) {
         }
     }
 
-done:
+    done:
     cli->reliable_session_id =
-        bt_gatt_client_prepare_write(cli->gatt, id,
-                                     handle, offset,
-                                     value, length,
-                                     write_long_cb, NULL,
-                                     NULL);
+            bt_gatt_client_prepare_write(cli->gatt, id,
+                                         handle, offset,
+                                         value, length,
+                                         write_long_cb, NULL,
+                                         NULL);
     if (!cli->reliable_session_id)
         daemon_log(LOG_ERR, "Failed to proceed prepare write");
     else
         daemon_log(LOG_INFO, "Prepare write success."
-                   "Session id: %d to be used on next write",
+                             "Session id: %d to be used on next write",
                    cli->reliable_session_id);
 
     free(value);
@@ -1281,11 +1281,11 @@ static void write_execute_usage(void) {
  * @param cli		pointer to the client structure
  * @param cmd_str	write execute command string
  */
-static void cmd_write_execute(struct client * cli, char * cmd_str) {
-    char * argvbuf[516];
-    char ** argv = argvbuf;
+static void cmd_write_execute(struct client *cli, char *cmd_str) {
+    char *argvbuf[516];
+    char **argv = argvbuf;
     int argc = 0;
-    char * endptr = NULL;
+    char *endptr = NULL;
     unsigned int session_id;
     bool execute;
 
@@ -1344,15 +1344,15 @@ static void register_notify_usage(void) {
 
 //ff 55 01 02 00 01 08 00 0e f4 00 03 7a 00 00 00 17 00 00 34 00 00 00 00 00 14 00 03 14 37 3c 00 00 00 00 23
 
-static uint32_t dl24_get_16bit(const uint8_t * data, size_t i) {
+static uint32_t dl24_get_16bit(const uint8_t *data, size_t i) {
     return ((uint16_t) data[i + 0] << 8) | ((uint16_t) data[i + 1] << 0);
 }
 
-static int32_t dl24_get_24bit(const uint8_t * data, size_t i) {
+static int32_t dl24_get_24bit(const uint8_t *data, size_t i) {
     return ((uint32_t) data[i + 0] << 16) | ((uint32_t) data[i + 1] << 8) | ((uint32_t) data[i + 2] << 0);
 }
 
-static int32_t dl24_get_32bit(const uint8_t * data, size_t i) {
+static int32_t dl24_get_32bit(const uint8_t *data, size_t i) {
     return ((uint32_t) dl24_get_16bit(data, i + 0) << 16) | ((uint32_t) dl24_get_16bit(data, i + 2) << 0);
 }
 
@@ -1374,8 +1374,8 @@ static int32_t dl24_get_32bit(const uint8_t * data, size_t i) {
  * @param length		length of vector value
  * @param user_data		not used
  */
-static void notify_cb(uint16_t value_handle, const uint8_t * value,
-                      uint16_t length, __attribute__((unused)) void * user_data) {
+static void notify_cb(uint16_t value_handle, const uint8_t *value,
+                      uint16_t length, __attribute__((unused)) void *user_data) {
     if (length == 36 && value[0] == 0xff && value[1] == 0x55) {
         double voltage = dl24_get_24bit(value, 4) * 0.1f;
         double current = dl24_get_24bit(value, 7) * 0.001f;
@@ -1396,7 +1396,7 @@ static void notify_cb(uint16_t value_handle, const uint8_t * value,
  * @param att_ecode		att error code
  * @param user_data		not used
  */
-static void register_notify_cb(uint16_t att_ecode, __attribute__((unused)) void * user_data) {
+static void register_notify_cb(uint16_t att_ecode, __attribute__((unused)) void *user_data) {
     if (att_ecode) {
         PRLOG("Failed to register notify handler "
               "- error code: 0x%02x", att_ecode);
@@ -1412,12 +1412,12 @@ static void register_notify_cb(uint16_t att_ecode, __attribute__((unused)) void 
  * @param cli		pointer to the client structure
  * @param cmd_str	register notify command string
  */
-static void cmd_register_notify(struct client * cli, char * cmd_str) {
-    char * argv[2];
+static void cmd_register_notify(struct client *cli, char *cmd_str) {
+    char *argv[2];
     int argc = 0;
     uint16_t value_handle;
     unsigned int id;
-    char * endptr = NULL;
+    char *endptr = NULL;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
         daemon_log(LOG_ERR, "GATT client not initialized");
@@ -1459,11 +1459,11 @@ static void unregister_notify_usage(void) {
  * @param cli		pointer to the client structure
  * @param cmd_str	un-register notify command string
  */
-static void cmd_unregister_notify(struct client * cli, char * cmd_str) {
-    char * argv[2];
+static void cmd_unregister_notify(struct client *cli, char *cmd_str) {
+    char *argv[2];
     int argc = 0;
     unsigned int id;
-    char * endptr = NULL;
+    char *endptr = NULL;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
         daemon_log(LOG_ERR, "GATT client not initialized");
@@ -1505,11 +1505,11 @@ static void set_security_usage(void) {
  * @param cli		pointer to the client structure
  * @param cmd_str	set security command string
  */
-static void cmd_set_security(struct client * cli, char * cmd_str) {
-    char * argvbuf[1];
-    char ** argv = argvbuf;
+static void cmd_set_security(struct client *cli, char *cmd_str) {
+    char *argvbuf[1];
+    char **argv = argvbuf;
     int argc = 0;
-    char * endptr = NULL;
+    char *endptr = NULL;
     int level;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
@@ -1546,7 +1546,7 @@ static void cmd_set_security(struct client * cli, char * cmd_str) {
  * @param cli		pointer to the client stricture
  * @param cmd_str	get security command string
  */
-static void cmd_get_security(struct client * cli, __attribute__((unused)) char * cmd_str) {
+static void cmd_get_security(struct client *cli, __attribute__((unused)) char *cmd_str) {
     int level;
 
     if (!bt_gatt_client_is_ready(cli->gatt)) {
@@ -1568,7 +1568,7 @@ static void cmd_get_security(struct client * cli, __attribute__((unused)) char *
  * @param key		returned parsed vector
  * @return 			true if success else false
  */
-static bool convert_sign_key(char * optarg, uint8_t key[16]) {
+static bool convert_sign_key(char *optarg, uint8_t key[16]) {
     int i;
 
     if (strlen(optarg) != 32) {
@@ -1601,7 +1601,7 @@ static void set_sign_key_usage(void) {
  * @param user_data		not used
  * @return				true
  */
-static bool local_counter(uint32_t * sign_cnt, __attribute__((unused)) void * user_data) {
+static bool local_counter(uint32_t *sign_cnt, __attribute__((unused)) void *user_data) {
     static uint32_t cnt = 0;
 
     *sign_cnt = cnt++;
@@ -1615,8 +1615,8 @@ static bool local_counter(uint32_t * sign_cnt, __attribute__((unused)) void * us
  * @param cli		pointer to client structure
  * @param cmd_str	set sign key command string
  */
-static void cmd_set_sign_key(struct client * cli, char * cmd_str) {
-    char * argv[3];
+static void cmd_set_sign_key(struct client *cli, char *cmd_str) {
+    char *argv[3];
     int argc = 0;
     uint8_t key[16];
 
@@ -1639,69 +1639,69 @@ static void cmd_set_sign_key(struct client * cli, char * cmd_str) {
         set_sign_key_usage();
 }
 
-static void cmd_help(struct client * cli, char * cmd_str);
+static void cmd_help(struct client *cli, char *cmd_str);
 
-static void cmd_quit(__attribute__((unused)) struct client * cli, __attribute__((unused)) char * cmd_str) {
+static void cmd_quit(__attribute__((unused)) struct client *cli, __attribute__((unused)) char *cmd_str) {
     mainloop_quit();
 }
 
 
-typedef void (*command_func_t)(struct client * cli, char * cmd_str);
+typedef void (*command_func_t)(struct client *cli, char *cmd_str);
 
 static struct {
-    char * cmd;
+    char *cmd;
     command_func_t func;
-    char * doc;
+    char *doc;
 } command[] = {
-    {"help",              cmd_help,          "\tDisplay help message"},
-    {"services",          cmd_services,      "\tShow discovered services"},
-    {
-        "read-value",        cmd_read_value,
-        "\tRead a characteristic or descriptor value"
-    },
-    {
-        "read-long-value",   cmd_read_long_value,
-        "\tRead a long characteristic or desctriptor value"
-    },
-    {"read-multiple",     cmd_read_multiple, "\tRead Multiple"},
-    {
-        "write-value",       cmd_write_value,
-        "\tWrite a characteristic or descriptor value"
-    },
-    {
-        "write-long-value",  cmd_write_long_value,
-        "Write long characteristic or descriptor value"
-    },
-    {
-        "write-prepare",     cmd_write_prepare,
-        "\tWrite prepare characteristic or descriptor value"
-    },
-    {
-        "write-execute",     cmd_write_execute,
-        "\tExecute already prepared write"
-    },
-    {
-        "register-notify",   cmd_register_notify,
-        "\tSubscribe to not/ind from a characteristic"
-    },
-    {
-        "unregister-notify", cmd_unregister_notify,
-        "Unregister a not/ind session"
-    },
-    {
-        "set-security",      cmd_set_security,
-        "\tSet security level on le connection"
-    },
-    {
-        "get-security",      cmd_get_security,
-        "\tGet security level on le connection"
-    },
-    {
-        "set-sign-key",      cmd_set_sign_key,
-        "\tSet signing key for signed write command"
-    },
-    {"quit",              cmd_quit,          "\tQuit"},
-    {}
+        {"help",              cmd_help,          "\tDisplay help message"},
+        {"services",          cmd_services,      "\tShow discovered services"},
+        {
+         "read-value",        cmd_read_value,
+                                                 "\tRead a characteristic or descriptor value"
+        },
+        {
+         "read-long-value",   cmd_read_long_value,
+                                                 "\tRead a long characteristic or desctriptor value"
+        },
+        {"read-multiple",     cmd_read_multiple, "\tRead Multiple"},
+        {
+         "write-value",       cmd_write_value,
+                                                 "\tWrite a characteristic or descriptor value"
+        },
+        {
+         "write-long-value",  cmd_write_long_value,
+                                                 "Write long characteristic or descriptor value"
+        },
+        {
+         "write-prepare",     cmd_write_prepare,
+                                                 "\tWrite prepare characteristic or descriptor value"
+        },
+        {
+         "write-execute",     cmd_write_execute,
+                                                 "\tExecute already prepared write"
+        },
+        {
+         "register-notify",   cmd_register_notify,
+                                                 "\tSubscribe to not/ind from a characteristic"
+        },
+        {
+         "unregister-notify", cmd_unregister_notify,
+                                                 "Unregister a not/ind session"
+        },
+        {
+         "set-security",      cmd_set_security,
+                                                 "\tSet security level on le connection"
+        },
+        {
+         "get-security",      cmd_get_security,
+                                                 "\tGet security level on le connection"
+        },
+        {
+         "set-sign-key",      cmd_set_sign_key,
+                                                 "\tSet signing key for signed write command"
+        },
+        {"quit",              cmd_quit,          "\tQuit"},
+        {}
 };
 
 /**
@@ -1710,7 +1710,7 @@ static struct {
  * @param cli		pointer to client structure
  * @param cmd_str	help command string
  */
-static void cmd_help(__attribute__((unused)) struct client * cli, __attribute__((unused)) char * cmd_str) {
+static void cmd_help(__attribute__((unused)) struct client *cli, __attribute__((unused)) char *cmd_str) {
     int i;
 
     daemon_log(LOG_INFO, "Commands:");
@@ -1725,12 +1725,12 @@ static void cmd_help(__attribute__((unused)) struct client * cli, __attribute__(
  * @param events	epoll event
  * @param user_data pointer to client structure
  */
-static void prompt_read_cb(__attribute__((unused)) int fd, uint32_t events, void * user_data) {
+static void prompt_read_cb(__attribute__((unused)) int fd, uint32_t events, void *user_data) {
     ssize_t read;
     size_t len = 0;
-    char * line = NULL;
-    char * cmd = NULL, *args;
-    struct client * cli = user_data;
+    char *line = NULL;
+    char *cmd = NULL, *args;
+    struct client *cli = user_data;
     int i;
 
     if (events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) {
@@ -1767,11 +1767,13 @@ static void prompt_read_cb(__attribute__((unused)) int fd, uint32_t events, void
     else
         PRLOGE("Unknown command: %s", line);
 
-failed:
+    failed:
     print_prompt();
 
     free(line);
 }
+
+static bool terminate = false;
 
 /**
  * signal call back SIGINT and SIGTERM processing
@@ -1779,14 +1781,16 @@ failed:
  * @param signum		SIGXXX
  * @param user_data		unused
  */
-static void signal_cb(int signum, __attribute__((unused)) void * user_data) {
+static void signal_cb(int signum, __attribute__((unused)) void *user_data) {
     switch (signum) {
-    case SIGINT:
-    case SIGTERM:
-        mainloop_quit();
-        break;
-    default:
-        break;
+        case SIGINT:
+        case SIGTERM:
+            terminate = true;
+            mainloop_exit_success();
+            daemon_log(LOG_INFO, "Terminate: %d", terminate);
+            break;
+        default:
+            break;
     }
 }
 
@@ -1799,7 +1803,7 @@ static void signal_cb(int signum, __attribute__((unused)) void * user_data) {
  * @param sec   security level BT_SECURITY_LOW or BT_SECURITY_MEDIUM or BT_SECURITY_HIGH
  * @return socket or -1 if error
  */
-static int l2cap_le_att_connect(bdaddr_t * src, bdaddr_t * dst, uint8_t dst_type,
+static int l2cap_le_att_connect(bdaddr_t *src, bdaddr_t *dst, uint8_t dst_type,
                                 int sec) {
     int sock;
     struct sockaddr_l2 srcaddr, dstaddr;
@@ -1812,7 +1816,7 @@ static int l2cap_le_att_connect(bdaddr_t * src, bdaddr_t * dst, uint8_t dst_type
         ba2str(dst, dstaddr_str);
 
         daemon_log(LOG_INFO, "btgatt-client: Opening L2CAP LE connection on ATT "
-                   "channel:\n\t src: %s\n\tdest: %s",
+                             "channel:\n\t src: %s\n\tdest: %s",
                    srcaddr_str, dstaddr_str);
     }
 
@@ -1887,14 +1891,14 @@ static void usage(void) {
 }
 
 static struct option main_options[] = {
-    {"index",          1, 0, 'i'},
-    {"dest",           1, 0, 'd'},
-    {"type",           1, 0, 't'},
-    {"mtu",            1, 0, 'm'},
-    {"security-level", 1, 0, 's'},
-    {"verbose",        0, 0, 'v'},
-    {"help",           0, 0, 'h'},
-    {}
+        {"index",          1, 0, 'i'},
+        {"dest",           1, 0, 'd'},
+        {"type",           1, 0, 't'},
+        {"mtu",            1, 0, 'm'},
+        {"security-level", 1, 0, 's'},
+        {"verbose",        0, 0, 'v'},
+        {"help",           0, 0, 'h'},
+        {}
 };
 
 /**
@@ -1905,7 +1909,7 @@ static struct option main_options[] = {
  * @param argv	args value
  * @return EXIT_FAILURE or EXIT_SUCCESS
  */
-int main(int argc, char * argv[]) {
+int main(int argc, char *argv[]) {
     int opt;
     int sec = BT_SECURITY_LOW;
     uint16_t mtu = 0;
@@ -1915,83 +1919,83 @@ int main(int argc, char * argv[]) {
     int dev_id = -1;
     int fd;
     sigset_t mask;
-    struct client * cli;
+    struct client *cli;
 
     daemon_log_upto(LOG_INFO);
 
     while ((opt = getopt_long(argc, argv, "+hvs:m:t:d:i:c",
                               main_options, NULL)) != -1) {
         switch (opt) {
-        case 'c':
-            disable_console = true;
-            break;
-        case 'h':
-            usage();
-            return EXIT_SUCCESS;
-        case 'v':
-            verbose = true;
-            break;
-        case 's':
-            if (strcmp(optarg, "low") == 0)
-                sec = BT_SECURITY_LOW;
-            else if (strcmp(optarg, "medium") == 0)
-                sec = BT_SECURITY_MEDIUM;
-            else if (strcmp(optarg, "high") == 0)
-                sec = BT_SECURITY_HIGH;
-            else {
-                PRLOGE("Invalid security level");
-                return EXIT_FAILURE;
-            }
-            break;
-        case 'm': {
-            int arg;
+            case 'c':
+                disable_console = true;
+                break;
+            case 'h':
+                usage();
+                return EXIT_SUCCESS;
+            case 'v':
+                verbose = true;
+                break;
+            case 's':
+                if (strcmp(optarg, "low") == 0)
+                    sec = BT_SECURITY_LOW;
+                else if (strcmp(optarg, "medium") == 0)
+                    sec = BT_SECURITY_MEDIUM;
+                else if (strcmp(optarg, "high") == 0)
+                    sec = BT_SECURITY_HIGH;
+                else {
+                    PRLOGE("Invalid security level");
+                    return EXIT_FAILURE;
+                }
+                break;
+            case 'm': {
+                int arg;
 
-            arg = atoi(optarg);
-            if (arg <= 0) {
-                PRLOGE("Invalid MTU: %d", arg);
-                return EXIT_FAILURE;
-            }
+                arg = atoi(optarg);
+                if (arg <= 0) {
+                    PRLOGE("Invalid MTU: %d", arg);
+                    return EXIT_FAILURE;
+                }
 
-            if (arg > UINT16_MAX) {
-                PRLOGE("MTU too large: %d", arg);
-                return EXIT_FAILURE;
-            }
+                if (arg > UINT16_MAX) {
+                    PRLOGE("MTU too large: %d", arg);
+                    return EXIT_FAILURE;
+                }
 
-            mtu = (uint16_t) arg;
-            break;
-        }
-        case 't':
-            if (strcmp(optarg, "random") == 0)
-                dst_type = BDADDR_LE_RANDOM;
-            else if (strcmp(optarg, "public") == 0)
-                dst_type = BDADDR_LE_PUBLIC;
-            else {
-                PRLOGE(
-                    "Allowed types: random, public");
-                return EXIT_FAILURE;
+                mtu = (uint16_t) arg;
+                break;
             }
-            break;
-        case 'd':
-            if (str2ba(optarg, &dst_addr) < 0) {
-                PRLOGE("Invalid remote address: %s",
-                       optarg);
+            case 't':
+                if (strcmp(optarg, "random") == 0)
+                    dst_type = BDADDR_LE_RANDOM;
+                else if (strcmp(optarg, "public") == 0)
+                    dst_type = BDADDR_LE_PUBLIC;
+                else {
+                    PRLOGE(
+                            "Allowed types: random, public");
+                    return EXIT_FAILURE;
+                }
+                break;
+            case 'd':
+                if (str2ba(optarg, &dst_addr) < 0) {
+                    PRLOGE("Invalid remote address: %s",
+                           optarg);
+                    return EXIT_FAILURE;
+                }
+
+                dst_addr_given = true;
+                break;
+
+            case 'i':
+                dev_id = hci_devid(optarg);
+                if (dev_id < 0) {
+                    perror("Invalid adapter");
+                    return EXIT_FAILURE;
+                }
+
+                break;
+            default:
+                PRLOGE("Invalid option: %c", opt);
                 return EXIT_FAILURE;
-            }
-
-            dst_addr_given = true;
-            break;
-
-        case 'i':
-            dev_id = hci_devid(optarg);
-            if (dev_id < 0) {
-                perror("Invalid adapter");
-                return EXIT_FAILURE;
-            }
-
-            break;
-        default:
-            PRLOGE("Invalid option: %c", opt);
-            return EXIT_FAILURE;
         }
     }
 
@@ -2023,48 +2027,52 @@ int main(int argc, char * argv[]) {
 
     mosq_init("gatt");
     /* create the mainloop resources */
-    mainloop_init();
 
-    while (true) {
-        fd = l2cap_le_att_connect(&src_addr, &dst_addr, dst_type, sec);
-        if (fd >= 0)
-            break;
-        PRLOGE("Connection failed, try again...");
-        sleep(5);
-    }
+    while (!terminate) {
+        mainloop_init();
 
-    cli = client_create(fd, mtu);
-    if (!cli) {
-        close(fd);
-        return EXIT_FAILURE;
-    }
+        while (true) {
+            fd = l2cap_le_att_connect(&src_addr, &dst_addr, dst_type, sec);
+            if (fd >= 0)
+                break;
+            PRLOGE("Connection failed, try again...");
+            sleep(5);
+        }
 
-    /* add input event from console */
-    if (!disable_console) {
-        if (mainloop_add_fd(fileno(stdin),
-                            EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLERR,
-                            prompt_read_cb, cli, NULL) < 0) {
-            PRLOGE("Failed to initialize console");
+        cli = client_create(fd, mtu);
+        if (!cli) {
+            close(fd);
             return EXIT_FAILURE;
         }
+
+        /* add input event from console */
+        if (!disable_console) {
+            if (mainloop_add_fd(fileno(stdin),
+                                EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLERR,
+                                prompt_read_cb, cli, NULL) < 0) {
+                PRLOGE("Failed to initialize console");
+                return EXIT_FAILURE;
+            }
+        }
+
+        sigemptyset(&mask);
+        sigaddset(&mask, SIGINT);
+        sigaddset(&mask, SIGTERM);
+
+        /* add handler for process interrupted (SIGINT) or terminated (SIGTERM)*/
+        mainloop_set_signal(&mask, signal_cb, NULL, NULL);
+
+        print_prompt();
+
+        /* epoll main loop call
+         *
+         * any further process is an epoll event processed in mainloop_run
+         *
+         */
+        if (mainloop_run() == EXIT_SUCCESS){
+            break;
+        }
     }
-
-    sigemptyset(&mask);
-    sigaddset(&mask, SIGINT);
-    sigaddset(&mask, SIGTERM);
-
-    /* add handler for process interrupted (SIGINT) or terminated (SIGTERM)*/
-    mainloop_set_signal(&mask, signal_cb, NULL, NULL);
-
-    print_prompt();
-
-    /* epoll main loop call
-     *
-     * any further process is an epoll event processed in mainloop_run
-     *
-     */
-    mainloop_run();
-
     daemon_log(LOG_INFO, "Shutting down...");
 
     client_destroy(cli);
