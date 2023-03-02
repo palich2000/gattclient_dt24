@@ -511,7 +511,7 @@ static bool can_write_data(struct io * io, void * user_data) {
     case ATT_OP_TYPE_RSP:
         /* Set in_req to false to indicate that no request is pending */
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+//#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
         att->in_req = false;
 #pragma GCC diagnostic pop
     /* Fall through to the next case */
@@ -888,7 +888,7 @@ static bool can_read_data(__attribute__((unused)) struct io * io, void * user_da
             return false;
         }
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+//#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
         att->in_req = true;
 #pragma GCC diagnostic pop
     /* Fall through to the next case */

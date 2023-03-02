@@ -1909,6 +1909,8 @@ static struct option main_options[] = {
  * @param argv	args value
  * @return EXIT_FAILURE or EXIT_SUCCESS
  */
+extern char * hostname;
+
 int main(int argc, char *argv[]) {
     int opt;
     int sec = BT_SECURITY_LOW;
@@ -1923,9 +1925,12 @@ int main(int argc, char *argv[]) {
 
     daemon_log_upto(LOG_INFO);
 
-    while ((opt = getopt_long(argc, argv, "+hvs:m:t:d:i:c",
+    while ((opt = getopt_long(argc, argv, "+hvs:m:t:d:i:cH:",
                               main_options, NULL)) != -1) {
         switch (opt) {
+	    case 'H':
+                hostname=optarg;
+                break;
             case 'c':
                 disable_console = true;
                 break;

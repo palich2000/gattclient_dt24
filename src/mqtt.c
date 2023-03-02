@@ -53,7 +53,7 @@ int mqtt_keepalive = 60;
 
 static struct mosquitto * mosq = NULL;
 static pthread_t mosq_th = 0;
-static char * hostname = "main-batt";
+char * hostname = "main-batt";
 static t_client_info client_info = {0};
 static int thermal_zone = 0;
 
