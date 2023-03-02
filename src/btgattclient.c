@@ -47,6 +47,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <string.h>
+#include <math.h>
 
 #include "bluetooth.h"
 #include "hci.h"
@@ -1379,9 +1380,26 @@ static void notify_cb(uint16_t value_handle, const uint8_t *value,
     if (length == 36 && value[0] == 0xff && value[1] == 0x55) {
         double voltage = dl24_get_24bit(value, 4) * 0.1f;
         double current = dl24_get_24bit(value, 7) * 0.001f;
+	double temp = dl24_get_16bit(value, 24);
+	double cap_ah = dl24_get_24bit(value, 10) * 0.01f;
+        double cap_wh = dl24_get_32bit(value, 13) * 10.0f;
+
+        static double p_voltage = NAN;
+        static double p_current = NAN;
+	static double p_temp = NAN;
+	static double p_cap_ah = NAN;
+        static double p_cap_wh = NAN;
+
         mosq_gather_data(current, voltage);
-        daemon_log(LOG_INFO, "%.2fV %.2fA %dC %.2fAh %.2fWh", voltage, current, dl24_get_16bit(value, 24),
-                   dl24_get_24bit(value, 10) * 0.01f, dl24_get_32bit(value, 13) * 10.0f);
+
+	if (voltage != p_voltage || current != p_current || temp!=p_temp || cap_ah != p_cap_ah || cap_wh != p_cap_wh) {
+	    p_voltage = voltage;
+            p_current = current;
+            p_temp = temp;
+            p_cap_ah = cap_ah;
+            p_cap_wh = cap_wh;
+            daemon_log(LOG_INFO, "%.2fV %.2fA %.0fC %.2fAh %.2fWh", voltage, current, temp, cap_ah, cap_wh);
+	}
     } else {
         daemon_log(LOG_ERR, "Handle Value Not/Ind: 0x%04x - (%u bytes)", value_handle, length);
         hex_dump(value, length);
@@ -2075,7 +2093,9 @@ int main(int argc, char *argv[]) {
          *
          */
         if (mainloop_run() == EXIT_SUCCESS){
-            break;
+            daemon_log(LOG_INFO, "Main loop terminated with success");
+            sleep(5);
+            //break;
         }
     }
     daemon_log(LOG_INFO, "Shutting down...");
