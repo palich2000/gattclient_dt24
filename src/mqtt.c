@@ -107,11 +107,17 @@ static void mosq_sleep(t_client_info * info, int secs) {
 static bool mosq_publish_state(double current, double voltage) {
 
     static uint64_t timer_publish_state = 0;
+    static uint64_t last_timeMillis = 0;
 
-    if (timer_publish_state > timeMillis()) {
+    uint64_t cur_timeMillis = timeMillis();
+    if (cur_timeMillis < last_timeMillis) {
+        timer_publish_state = 0;
+    }
+    last_timeMillis = cur_timeMillis;
+    if (timer_publish_state > cur_timeMillis) {
         return false;
     } else {
-        timer_publish_state = timeMillis() + STATE_PUBLISH_INTERVAL;
+        timer_publish_state = cur_timeMillis + STATE_PUBLISH_INTERVAL;
     }
 
     time_t timer;
