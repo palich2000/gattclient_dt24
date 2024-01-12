@@ -238,7 +238,7 @@ void * mosq_thread_loop(void * p) {
         case MOSQ_ERR_NOMEM:
         case MOSQ_ERR_CONN_LOST:
         case MOSQ_ERR_PROTOCOL:
-        case MOSQ_ERR_ERRNO:
+        case MOSQ_ERR_ERRNO: {
             daemon_log(LOG_ERR, "%s %s %s", __FUNCTION__, strerror(errno), mosquitto_strerror(res));
             mosquitto_disconnect(mosq);
             daemon_log(LOG_ERR, "%s disconnected", __FUNCTION__);
@@ -251,7 +251,7 @@ void * mosq_thread_loop(void * p) {
             } else {
                 daemon_log(LOG_ERR, "%s Connected", __FUNCTION__);
             }
-
+	    }
             break;
         default:
             daemon_log(LOG_ERR, "%s unkown error (%d) from mosquitto_loop", __FUNCTION__, res);

@@ -2,9 +2,9 @@
 MCP = yes
 #ZIGBEEGATE = yes
 
-CC = gcc
+CC ?= gcc
 
-CFLAGS = -g -std=c11 -MD -MP  -Wall -Werror -Wfatal-errors -Wextra  -g -I.
+CFLAGS += -g -std=c11 -MD -MP  -Wall -Werror -Wfatal-errors -Wextra  -g -I.
 
 OBJGROUP = att.o \
 bluetooth.o \
@@ -27,14 +27,14 @@ dmem.o \
 dnonblock.o \
 dpid.o \
 dsignal.o \
-dzip.o \
 mqtt.o
+#dzip.o \
 
 
 DST=gattclient
 
 INCLUDES = $(shell pkg-config --cflags glib-2.0)
-EXTRA_LIBS = $(shell pkg-config --libs glib-2.0) -lpthread -lm -lcrypt -lrt -lmosquitto -lzip
+EXTRA_LIBS = $(shell pkg-config --libs glib-2.0) -lpthread -lm -lcrypt -lrt -lmosquitto #-lzip
 
 all: $(DST)
 

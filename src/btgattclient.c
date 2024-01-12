@@ -1939,7 +1939,7 @@ int main(int argc, char *argv[]) {
     int dev_id = -1;
     int fd;
     sigset_t mask;
-    struct client *cli;
+    struct client *cli = NULL;
 
     daemon_log_upto(LOG_INFO);
 
