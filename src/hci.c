@@ -60,7 +60,7 @@
 #endif
 
 typedef struct {
-    char * str;
+    char *str;
     unsigned int val;
 } hci_map;
 
@@ -71,9 +71,9 @@ typedef struct {
  * @param val	code to match
  * @return		string matching the code (val) from the hci_map
  */
-static char * hci_bit2str(hci_map * m, unsigned int val) {
-    char * str = malloc(120);
-    char * ptr = str;
+static char *hci_bit2str(hci_map *m, unsigned int val) {
+    char *str = malloc(120);
+    char *ptr = str;
 
     if (!str)
         return NULL;
@@ -95,9 +95,9 @@ static char * hci_bit2str(hci_map * m, unsigned int val) {
  * @param val	ored bits (from the hci_map) of maching commands
  *
  * @return		1 val is set, 0
- */static int hci_str2bit(hci_map * map, char * str, unsigned int * val) {
-    char * t, *ptr;
-    hci_map * m;
+ */static int hci_str2bit(hci_map *map, char *str, unsigned int *val) {
+    char *t, *ptr;
+    hci_map *m;
     int set;
 
     if (!str || !(str = ptr = strdup(str)))
@@ -125,9 +125,9 @@ static char * hci_bit2str(hci_map * m, unsigned int val) {
  * @param val	val to match in the hci_map
  * @return		string mapped to the matching value or NULL if no matching
  */
-static char * hci_uint2str(hci_map * m, unsigned int val) {
-    char * str = malloc(50);
-    char * ptr = str;
+static char *hci_uint2str(hci_map *m, unsigned int val) {
+    char *str = malloc(50);
+    char *ptr = str;
 
     if (!str)
         return NULL;
@@ -152,9 +152,9 @@ static char * hci_uint2str(hci_map * m, unsigned int val) {
  *
  * @return		1 val is set 0 if no matching string
  */
-static int hci_str2uint(hci_map * map, char * str, unsigned int * val) {
-    char * t, *ptr;
-    hci_map * m;
+static int hci_str2uint(hci_map *map, char *str, unsigned int *val) {
+    char *t, *ptr;
+    hci_map *m;
     int set = 0;
 
     if (!str)
@@ -182,24 +182,24 @@ static int hci_str2uint(hci_map * map, char * str, unsigned int * val) {
  * @param bus	bus code
  * @return		string corresponding to the bus code (NULL if error)
  */
-char * hci_bustostr(int bus) {
+char *hci_bustostr(int bus) {
     switch (bus) {
-    case HCI_VIRTUAL:
-        return "VIRTUAL";
-    case HCI_USB:
-        return "USB";
-    case HCI_PCCARD:
-        return "PCCARD";
-    case HCI_UART:
-        return "UART";
-    case HCI_RS232:
-        return "RS232";
-    case HCI_PCI:
-        return "PCI";
-    case HCI_SDIO:
-        return "SDIO";
-    default:
-        return "UNKNOWN";
+        case HCI_VIRTUAL:
+            return "VIRTUAL";
+        case HCI_USB:
+            return "USB";
+        case HCI_PCCARD:
+            return "PCCARD";
+        case HCI_UART:
+            return "UART";
+        case HCI_RS232:
+            return "RS232";
+        case HCI_PCI:
+            return "PCI";
+        case HCI_SDIO:
+            return "SDIO";
+        default:
+            return "UNKNOWN";
     }
 }
 
@@ -209,7 +209,7 @@ char * hci_bustostr(int bus) {
  * @param type	bus code
  * @return		bus string (NULL if error)
  */
-char * hci_dtypetostr(int type) {
+char *hci_dtypetostr(int type) {
     return hci_bustostr(type & 0x0f);
 }
 
@@ -219,29 +219,29 @@ char * hci_dtypetostr(int type) {
  * @param type	HCI controller types
  * @return		corresponding string (NULL if error)
  */
-char * hci_typetostr(int type) {
+char *hci_typetostr(int type) {
     switch (type) {
-    case HCI_BREDR:
-        return "BR/EDR";
-    case HCI_AMP:
-        return "AMP";
-    default:
-        return "UNKNOWN";
+        case HCI_BREDR:
+            return "BR/EDR";
+        case HCI_AMP:
+            return "AMP";
+        default:
+            return "UNKNOWN";
     }
 }
 
 /* HCI dev flags mapping */
 static hci_map dev_flags_map[] = {
-    { "UP",      HCI_UP      },
-    { "INIT",    HCI_INIT    },
-    { "RUNNING", HCI_RUNNING },
-    { "RAW",     HCI_RAW     },
-    { "PSCAN",   HCI_PSCAN   },
-    { "ISCAN",   HCI_ISCAN   },
-    { "INQUIRY", HCI_INQUIRY },
-    { "AUTH",    HCI_AUTH    },
-    { "ENCRYPT", HCI_ENCRYPT },
-    { NULL }
+        {"UP",      HCI_UP},
+        {"INIT",    HCI_INIT},
+        {"RUNNING", HCI_RUNNING},
+        {"RAW",     HCI_RAW},
+        {"PSCAN",   HCI_PSCAN},
+        {"ISCAN",   HCI_ISCAN},
+        {"INQUIRY", HCI_INQUIRY},
+        {"AUTH",    HCI_AUTH},
+        {"ENCRYPT", HCI_ENCRYPT},
+        {NULL}
 };
 
 /**
@@ -250,10 +250,10 @@ static hci_map dev_flags_map[] = {
  * @param flags		HCI device flags code
  * @return			HCI device flags string (NULL if error)
  */
-char * hci_dflagstostr(uint32_t flags) {
-    char * str = bt_malloc(50);
-    char * ptr = str;
-    hci_map * m = dev_flags_map;
+char *hci_dflagstostr(uint32_t flags) {
+    char *str = bt_malloc(50);
+    char *ptr = str;
+    hci_map *m = dev_flags_map;
 
     if (!str)
         return NULL;
@@ -273,37 +273,37 @@ char * hci_dflagstostr(uint32_t flags) {
 
 /* HCI packet type mapping */
 static hci_map pkt_type_map[] = {
-    { "DM1",   HCI_DM1  },
-    { "DM3",   HCI_DM3  },
-    { "DM5",   HCI_DM5  },
-    { "DH1",   HCI_DH1  },
-    { "DH3",   HCI_DH3  },
-    { "DH5",   HCI_DH5  },
-    { "HV1",   HCI_HV1  },
-    { "HV2",   HCI_HV2  },
-    { "HV3",   HCI_HV3  },
-    { "2-DH1", HCI_2DH1 },
-    { "2-DH3", HCI_2DH3 },
-    { "2-DH5", HCI_2DH5 },
-    { "3-DH1", HCI_3DH1 },
-    { "3-DH3", HCI_3DH3 },
-    { "3-DH5", HCI_3DH5 },
-    { NULL }
+        {"DM1",   HCI_DM1},
+        {"DM3",   HCI_DM3},
+        {"DM5",   HCI_DM5},
+        {"DH1",   HCI_DH1},
+        {"DH3",   HCI_DH3},
+        {"DH5",   HCI_DH5},
+        {"HV1",   HCI_HV1},
+        {"HV2",   HCI_HV2},
+        {"HV3",   HCI_HV3},
+        {"2-DH1", HCI_2DH1},
+        {"2-DH3", HCI_2DH3},
+        {"2-DH5", HCI_2DH5},
+        {"3-DH1", HCI_3DH1},
+        {"3-DH3", HCI_3DH3},
+        {"3-DH5", HCI_3DH5},
+        {NULL}
 };
 
 /* SCO (synchronous connection orientated) links */
 static hci_map sco_ptype_map[] = {
-    { "HV1",   0x0001   },
-    { "HV2",   0x0002   },
-    { "HV3",   0x0004   },
-    { "EV3",   HCI_EV3  },
-    { "EV4",   HCI_EV4  },
-    { "EV5",   HCI_EV5  },
-    { "2-EV3", HCI_2EV3 },
-    { "2-EV5", HCI_2EV5 },
-    { "3-EV3", HCI_3EV3 },
-    { "3-EV5", HCI_3EV5 },
-    { NULL }
+        {"HV1", 0x0001},
+        {"HV2", 0x0002},
+        {"HV3", 0x0004},
+        {"EV3",   HCI_EV3},
+        {"EV4",   HCI_EV4},
+        {"EV5",   HCI_EV5},
+        {"2-EV3", HCI_2EV3},
+        {"2-EV5", HCI_2EV5},
+        {"3-EV3", HCI_3EV3},
+        {"3-EV5", HCI_3EV5},
+        {NULL}
 };
 
 /**
@@ -312,7 +312,7 @@ static hci_map sco_ptype_map[] = {
  * @param ptype	HCI packet type
  * @return		HCI packet type string (NULL if error)
  */
-char * hci_ptypetostr(unsigned int ptype) {
+char *hci_ptypetostr(unsigned int ptype) {
     return hci_bit2str(pkt_type_map, ptype);
 }
 
@@ -323,7 +323,7 @@ char * hci_ptypetostr(unsigned int ptype) {
  * @param val	HCI packet type code
  * @return		1 if found 0 error
  */
-int hci_strtoptype(char * str, unsigned int * val) {
+int hci_strtoptype(char *str, unsigned int *val) {
     return hci_str2bit(pkt_type_map, str, val);
 }
 
@@ -333,7 +333,7 @@ int hci_strtoptype(char * str, unsigned int * val) {
  * @param ptype	SCO type code
  * @return		SCO string (NULL if error)
  */
-char * hci_scoptypetostr(unsigned int ptype) {
+char *hci_scoptypetostr(unsigned int ptype) {
     return hci_bit2str(sco_ptype_map, ptype);
 }
 
@@ -344,18 +344,18 @@ char * hci_scoptypetostr(unsigned int ptype) {
  * @param val	SCO (synchronous connection orientated) links code
  * @return		1 match found 0 error
  */
-int hci_strtoscoptype(char * str, unsigned int * val) {
+int hci_strtoscoptype(char *str, unsigned int *val) {
     return hci_str2bit(sco_ptype_map, str, val);
 }
 
 /* Link policy mapping */
 static hci_map link_policy_map[] = {
-    { "NONE",	0		},
-    { "RSWITCH",	HCI_LP_RSWITCH	},
-    { "HOLD",	HCI_LP_HOLD	},
-    { "SNIFF",	HCI_LP_SNIFF	},
-    { "PARK",	HCI_LP_PARK	},
-    { NULL }
+        {"NONE", 0},
+        {"RSWITCH", HCI_LP_RSWITCH},
+        {"HOLD",    HCI_LP_HOLD},
+        {"SNIFF",   HCI_LP_SNIFF},
+        {"PARK",    HCI_LP_PARK},
+        {NULL}
 };
 
 /**
@@ -364,7 +364,7 @@ static hci_map link_policy_map[] = {
  * @param lp	Link policy mapping code
  * @return		Link policy mapping string (NULL if error)
  */
-char * hci_lptostr(unsigned int lp) {
+char *hci_lptostr(unsigned int lp) {
     return hci_bit2str(link_policy_map, lp);
 }
 
@@ -375,21 +375,21 @@ char * hci_lptostr(unsigned int lp) {
  * @param val	Link policy mapping code
  * @return		1 match found 0 error
  */
-int hci_strtolp(char * str, unsigned int * val) {
+int hci_strtolp(char *str, unsigned int *val) {
     return hci_str2bit(link_policy_map, str, val);
 }
 
 /* Link mode mapping */
 static hci_map link_mode_map[] = {
-    { "NONE",	0		},
-    { "ACCEPT",	HCI_LM_ACCEPT	},
-    { "MASTER",	HCI_LM_MASTER	},
-    { "AUTH",	HCI_LM_AUTH	},
-    { "ENCRYPT",	HCI_LM_ENCRYPT	},
-    { "TRUSTED",	HCI_LM_TRUSTED	},
-    { "RELIABLE",	HCI_LM_RELIABLE	},
-    { "SECURE",	HCI_LM_SECURE	},
-    { NULL }
+        {"NONE", 0},
+        {"ACCEPT",   HCI_LM_ACCEPT},
+        {"MASTER",   HCI_LM_MASTER},
+        {"AUTH",     HCI_LM_AUTH},
+        {"ENCRYPT",  HCI_LM_ENCRYPT},
+        {"TRUSTED",  HCI_LM_TRUSTED},
+        {"RELIABLE", HCI_LM_RELIABLE},
+        {"SECURE",   HCI_LM_SECURE},
+        {NULL}
 };
 
 /**
@@ -398,8 +398,8 @@ static hci_map link_mode_map[] = {
  * @param lm	Link mode mapping code
  * @return		Link mode mapping string (NULL if error)
  */
-char * hci_lmtostr(unsigned int lm) {
-    char * s, *str = bt_malloc(50);
+char *hci_lmtostr(unsigned int lm) {
+    char *s, *str = bt_malloc(50);
     if (!str)
         return NULL;
 
@@ -425,274 +425,274 @@ char * hci_lmtostr(unsigned int lm) {
  * @param val	Link mode mapping code
  * @return	1 match found, 0 error
  */
-int hci_strtolm(char * str, unsigned int * val) {
+int hci_strtolm(char *str, unsigned int *val) {
     return hci_str2bit(link_mode_map, str, val);
 }
 
 /* Command mapping */
 static hci_map commands_map[] = {
-    { "Inquiry",					0   },
-    { "Inquiry Cancel",				1   },
-    { "Periodic Inquiry Mode",			2   },
-    { "Exit Periodic Inquiry Mode",			3   },
-    { "Create Connection",				4   },
-    { "Disconnect",					5   },
-    { "Add SCO Connection",				6   },
-    { "Cancel Create Connection",			7   },
+        {"Inquiry",                                    0},
+        {"Inquiry Cancel",                             1},
+        {"Periodic Inquiry Mode",                      2},
+        {"Exit Periodic Inquiry Mode",                 3},
+        {"Create Connection",                          4},
+        {"Disconnect",                                 5},
+        {"Add SCO Connection",                         6},
+        {"Cancel Create Connection",                   7},
 
-    { "Accept Connection Request",			8   },
-    { "Reject Connection Request",			9   },
-    { "Link Key Request Reply",			10  },
-    { "Link Key Request Negative Reply",		11  },
-    { "PIN Code Request Reply",			12  },
-    { "PIN Code Request Negative Reply",		13  },
-    { "Change Connection Packet Type",		14  },
-    { "Authentication Requested",			15  },
+        {"Accept Connection Request",                  8},
+        {"Reject Connection Request",                  9},
+        {"Link Key Request Reply",                     10},
+        {"Link Key Request Negative Reply",            11},
+        {"PIN Code Request Reply",                     12},
+        {"PIN Code Request Negative Reply",            13},
+        {"Change Connection Packet Type",              14},
+        {"Authentication Requested",                   15},
 
-    { "Set Connection Encryption",			16  },
-    { "Change Connection Link Key",			17  },
-    { "Master Link Key",				18  },
-    { "Remote Name Request",			19  },
-    { "Cancel Remote Name Request",			20  },
-    { "Read Remote Supported Features",		21  },
-    { "Read Remote Extended Features",		22  },
-    { "Read Remote Version Information",		23  },
+        {"Set Connection Encryption",                  16},
+        {"Change Connection Link Key",                 17},
+        {"Master Link Key",                            18},
+        {"Remote Name Request",                        19},
+        {"Cancel Remote Name Request",                 20},
+        {"Read Remote Supported Features",             21},
+        {"Read Remote Extended Features",              22},
+        {"Read Remote Version Information",            23},
 
-    { "Read Clock Offset",				24  },
-    { "Read LMP Handle",				25  },
-    { "Reserved",					26  },
-    { "Reserved",					27  },
-    { "Reserved",					28  },
-    { "Reserved",					29  },
-    { "Reserved",					30  },
-    { "Reserved",					31  },
+        {"Read Clock Offset",                          24},
+        {"Read LMP Handle",                            25},
+        {"Reserved",                                   26},
+        {"Reserved",                                   27},
+        {"Reserved",                                   28},
+        {"Reserved",                                   29},
+        {"Reserved",                                   30},
+        {"Reserved",                                   31},
 
-    { "Reserved",					32  },
-    { "Hold Mode",					33  },
-    { "Sniff Mode",					34  },
-    { "Exit Sniff Mode",				35  },
-    { "Park State",					36  },
-    { "Exit Park State",				37  },
-    { "QoS Setup",					38  },
-    { "Role Discovery",				39  },
+        {"Reserved",                                   32},
+        {"Hold Mode",                                  33},
+        {"Sniff Mode",                                 34},
+        {"Exit Sniff Mode",                            35},
+        {"Park State",                                 36},
+        {"Exit Park State",                            37},
+        {"QoS Setup",                                  38},
+        {"Role Discovery",                             39},
 
-    { "Switch Role",				40  },
-    { "Read Link Policy Settings",			41  },
-    { "Write Link Policy Settings",			42  },
-    { "Read Default Link Policy Settings",		43  },
-    { "Write Default Link Policy Settings",		44  },
-    { "Flow Specification",				45  },
-    { "Set Event Mask",				46  },
-    { "Reset",					47  },
+        {"Switch Role",                                40},
+        {"Read Link Policy Settings",                  41},
+        {"Write Link Policy Settings",                 42},
+        {"Read Default Link Policy Settings",          43},
+        {"Write Default Link Policy Settings",         44},
+        {"Flow Specification",                         45},
+        {"Set Event Mask",                             46},
+        {"Reset",                                      47},
 
-    { "Set Event Filter",				48  },
-    { "Flush",					49  },
-    { "Read PIN Type",				50  },
-    { "Write PIN Type",				51  },
-    { "Create New Unit Key",			52  },
-    { "Read Stored Link Key",			53  },
-    { "Write Stored Link Key",			54  },
-    { "Delete Stored Link Key",			55  },
+        {"Set Event Filter",                           48},
+        {"Flush",                                      49},
+        {"Read PIN Type",                              50},
+        {"Write PIN Type",                             51},
+        {"Create New Unit Key",                        52},
+        {"Read Stored Link Key",                       53},
+        {"Write Stored Link Key",                      54},
+        {"Delete Stored Link Key",                     55},
 
-    { "Write Local Name",				56  },
-    { "Read Local Name",				57  },
-    { "Read Connection Accept Timeout",		58  },
-    { "Write Connection Accept Timeout",		59  },
-    { "Read Page Timeout",				60  },
-    { "Write Page Timeout",				61  },
-    { "Read Scan Enable",				62  },
-    { "Write Scan Enable",				63  },
+        {"Write Local Name",                           56},
+        {"Read Local Name",                            57},
+        {"Read Connection Accept Timeout",             58},
+        {"Write Connection Accept Timeout",            59},
+        {"Read Page Timeout",                          60},
+        {"Write Page Timeout",                         61},
+        {"Read Scan Enable",                           62},
+        {"Write Scan Enable",                          63},
 
-    { "Read Page Scan Activity",			64  },
-    { "Write Page Scan Activity",			65  },
-    { "Read Inquiry Scan Activity",			66  },
-    { "Write Inquiry Scan Activity",		67  },
-    { "Read Authentication Enable",			68  },
-    { "Write Authentication Enable",		69  },
-    { "Read Encryption Mode",			70  },
-    { "Write Encryption Mode",			71  },
+        {"Read Page Scan Activity",                    64},
+        {"Write Page Scan Activity",                   65},
+        {"Read Inquiry Scan Activity",                 66},
+        {"Write Inquiry Scan Activity",                67},
+        {"Read Authentication Enable",                 68},
+        {"Write Authentication Enable",                69},
+        {"Read Encryption Mode",                       70},
+        {"Write Encryption Mode",                      71},
 
-    { "Read Class Of Device",			72  },
-    { "Write Class Of Device",			73  },
-    { "Read Voice Setting",				74  },
-    { "Write Voice Setting",			75  },
-    { "Read Automatic Flush Timeout",		76  },
-    { "Write Automatic Flush Timeout",		77  },
-    { "Read Num Broadcast Retransmissions",		78  },
-    { "Write Num Broadcast Retransmissions",	79  },
+        {"Read Class Of Device",                       72},
+        {"Write Class Of Device",                      73},
+        {"Read Voice Setting",                         74},
+        {"Write Voice Setting",                        75},
+        {"Read Automatic Flush Timeout",               76},
+        {"Write Automatic Flush Timeout",              77},
+        {"Read Num Broadcast Retransmissions",         78},
+        {"Write Num Broadcast Retransmissions",        79},
 
-    { "Read Hold Mode Activity",			80  },
-    { "Write Hold Mode Activity",			81  },
-    { "Read Transmit Power Level",			82  },
-    { "Read Synchronous Flow Control Enable",	83  },
-    { "Write Synchronous Flow Control Enable",	84  },
-    { "Set Host Controller To Host Flow Control",	85  },
-    { "Host Buffer Size",				86  },
-    { "Host Number Of Completed Packets",		87  },
+        {"Read Hold Mode Activity",                    80},
+        {"Write Hold Mode Activity",                   81},
+        {"Read Transmit Power Level",                  82},
+        {"Read Synchronous Flow Control Enable",       83},
+        {"Write Synchronous Flow Control Enable",      84},
+        {"Set Host Controller To Host Flow Control",   85},
+        {"Host Buffer Size",                           86},
+        {"Host Number Of Completed Packets",           87},
 
-    { "Read Link Supervision Timeout",		88  },
-    { "Write Link Supervision Timeout",		89  },
-    { "Read Number of Supported IAC",		90  },
-    { "Read Current IAC LAP",			91  },
-    { "Write Current IAC LAP",			92  },
-    { "Read Page Scan Period Mode",			93  },
-    { "Write Page Scan Period Mode",		94  },
-    { "Read Page Scan Mode",			95  },
+        {"Read Link Supervision Timeout",              88},
+        {"Write Link Supervision Timeout",             89},
+        {"Read Number of Supported IAC",               90},
+        {"Read Current IAC LAP",                       91},
+        {"Write Current IAC LAP",                      92},
+        {"Read Page Scan Period Mode",                 93},
+        {"Write Page Scan Period Mode",                94},
+        {"Read Page Scan Mode",                        95},
 
-    { "Write Page Scan Mode",			96  },
-    { "Set AFH Channel Classification",		97  },
-    { "Reserved",					98  },
-    { "Reserved",					99  },
-    { "Read Inquiry Scan Type",			100 },
-    { "Write Inquiry Scan Type",			101 },
-    { "Read Inquiry Mode",				102 },
-    { "Write Inquiry Mode",				103 },
+        {"Write Page Scan Mode",                       96},
+        {"Set AFH Channel Classification",             97},
+        {"Reserved",                                   98},
+        {"Reserved",                                   99},
+        {"Read Inquiry Scan Type",                     100},
+        {"Write Inquiry Scan Type",                    101},
+        {"Read Inquiry Mode",                          102},
+        {"Write Inquiry Mode",                         103},
 
-    { "Read Page Scan Type",			104 },
-    { "Write Page Scan Type",			105 },
-    { "Read AFH Channel Assessment Mode",		106 },
-    { "Write AFH Channel Assessment Mode",		107 },
-    { "Reserved",					108 },
-    { "Reserved",					109 },
-    { "Reserved",					110 },
-    { "Reserved",					111 },
+        {"Read Page Scan Type",                        104},
+        {"Write Page Scan Type",                       105},
+        {"Read AFH Channel Assessment Mode",           106},
+        {"Write AFH Channel Assessment Mode",          107},
+        {"Reserved",                                   108},
+        {"Reserved",                                   109},
+        {"Reserved",                                   110},
+        {"Reserved",                                   111},
 
-    { "Reserved",					112 },
-    { "Reserved",					113 },
-    { "Reserved",					114 },
-    { "Read Local Version Information",		115 },
-    { "Read Local Supported Commands",		116 },
-    { "Read Local Supported Features",		117 },
-    { "Read Local Extended Features",		118 },
-    { "Read Buffer Size",				119 },
+        {"Reserved",                                   112},
+        {"Reserved",                                   113},
+        {"Reserved",                                   114},
+        {"Read Local Version Information",             115},
+        {"Read Local Supported Commands",              116},
+        {"Read Local Supported Features",              117},
+        {"Read Local Extended Features",               118},
+        {"Read Buffer Size",                           119},
 
-    { "Read Country Code",				120 },
-    { "Read BD ADDR",				121 },
-    { "Read Failed Contact Counter",		122 },
-    { "Reset Failed Contact Counter",		123 },
-    { "Get Link Quality",				124 },
-    { "Read RSSI",					125 },
-    { "Read AFH Channel Map",			126 },
-    { "Read BD Clock",				127 },
+        {"Read Country Code",                          120},
+        {"Read BD ADDR",                               121},
+        {"Read Failed Contact Counter",                122},
+        {"Reset Failed Contact Counter",               123},
+        {"Get Link Quality",                           124},
+        {"Read RSSI",                                  125},
+        {"Read AFH Channel Map",                       126},
+        {"Read BD Clock",                              127},
 
-    { "Read Loopback Mode",				128 },
-    { "Write Loopback Mode",			129 },
-    { "Enable Device Under Test Mode",		130 },
-    { "Setup Synchronous Connection",		131 },
-    { "Accept Synchronous Connection",		132 },
-    { "Reject Synchronous Connection",		133 },
-    { "Reserved",					134 },
-    { "Reserved",					135 },
+        {"Read Loopback Mode",                         128},
+        {"Write Loopback Mode",                        129},
+        {"Enable Device Under Test Mode",              130},
+        {"Setup Synchronous Connection",               131},
+        {"Accept Synchronous Connection",              132},
+        {"Reject Synchronous Connection",              133},
+        {"Reserved",                                   134},
+        {"Reserved",                                   135},
 
-    { "Read Extended Inquiry Response",		136 },
-    { "Write Extended Inquiry Response",		137 },
-    { "Refresh Encryption Key",			138 },
-    { "Reserved",					139 },
-    { "Sniff Subrating",				140 },
-    { "Read Simple Pairing Mode",			141 },
-    { "Write Simple Pairing Mode",			142 },
-    { "Read Local OOB Data",			143 },
+        {"Read Extended Inquiry Response",             136},
+        {"Write Extended Inquiry Response",            137},
+        {"Refresh Encryption Key",                     138},
+        {"Reserved",                                   139},
+        {"Sniff Subrating",                            140},
+        {"Read Simple Pairing Mode",                   141},
+        {"Write Simple Pairing Mode",                  142},
+        {"Read Local OOB Data",                        143},
 
-    { "Read Inquiry Response Transmit Power Level",	144 },
-    { "Write Inquiry Transmit Power Level",		145 },
-    { "Read Default Erroneous Data Reporting",	146 },
-    { "Write Default Erroneous Data Reporting",	147 },
-    { "Reserved",					148 },
-    { "Reserved",					149 },
-    { "Reserved",					150 },
-    { "IO Capability Request Reply",		151 },
+        {"Read Inquiry Response Transmit Power Level", 144},
+        {"Write Inquiry Transmit Power Level",         145},
+        {"Read Default Erroneous Data Reporting",      146},
+        {"Write Default Erroneous Data Reporting",     147},
+        {"Reserved",                                   148},
+        {"Reserved",                                   149},
+        {"Reserved",                                   150},
+        {"IO Capability Request Reply",                151},
 
-    { "User Confirmation Request Reply",		152 },
-    { "User Confirmation Request Negative Reply",	153 },
-    { "User Passkey Request Reply",			154 },
-    { "User Passkey Request Negative Reply",	155 },
-    { "Remote OOB Data Request Reply",		156 },
-    { "Write Simple Pairing Debug Mode",		157 },
-    { "Enhanced Flush",				158 },
-    { "Remote OOB Data Request Negative Reply",	159 },
+        {"User Confirmation Request Reply",            152},
+        {"User Confirmation Request Negative Reply",   153},
+        {"User Passkey Request Reply",                 154},
+        {"User Passkey Request Negative Reply",        155},
+        {"Remote OOB Data Request Reply",              156},
+        {"Write Simple Pairing Debug Mode",            157},
+        {"Enhanced Flush",                             158},
+        {"Remote OOB Data Request Negative Reply",     159},
 
-    { "Reserved",					160 },
-    { "Reserved",					161 },
-    { "Send Keypress Notification",			162 },
-    { "IO Capability Request Negative Reply",	163 },
-    { "Read Encryption Key Size",			164 },
-    { "Reserved",					165 },
-    { "Reserved",					166 },
-    { "Reserved",					167 },
+        {"Reserved",                                   160},
+        {"Reserved",                                   161},
+        {"Send Keypress Notification",                 162},
+        {"IO Capability Request Negative Reply",       163},
+        {"Read Encryption Key Size",                   164},
+        {"Reserved",                                   165},
+        {"Reserved",                                   166},
+        {"Reserved",                                   167},
 
-    { "Create Physical Link",			168 },
-    { "Accept Physical Link",			169 },
-    { "Disconnect Physical Link",			170 },
-    { "Create Logical Link",			171 },
-    { "Accept Logical Link",			172 },
-    { "Disconnect Logical Link",			173 },
-    { "Logical Link Cancel",			174 },
-    { "Flow Specification Modify",			175 },
+        {"Create Physical Link",                       168},
+        {"Accept Physical Link",                       169},
+        {"Disconnect Physical Link",                   170},
+        {"Create Logical Link",                        171},
+        {"Accept Logical Link",                        172},
+        {"Disconnect Logical Link",                    173},
+        {"Logical Link Cancel",                        174},
+        {"Flow Specification Modify",                  175},
 
-    { "Read Logical Link Accept Timeout",		176 },
-    { "Write Logical Link Accept Timeout",		177 },
-    { "Set Event Mask Page 2",			178 },
-    { "Read Location Data",				179 },
-    { "Write Location Data",			180 },
-    { "Read Local AMP Info",			181 },
-    { "Read Local AMP_ASSOC",			182 },
-    { "Write Remote AMP_ASSOC",			183 },
+        {"Read Logical Link Accept Timeout",           176},
+        {"Write Logical Link Accept Timeout",          177},
+        {"Set Event Mask Page 2",                      178},
+        {"Read Location Data",                         179},
+        {"Write Location Data",                        180},
+        {"Read Local AMP Info",                        181},
+        {"Read Local AMP_ASSOC",                       182},
+        {"Write Remote AMP_ASSOC",                     183},
 
-    { "Read Flow Control Mode",			184 },
-    { "Write Flow Control Mode",			185 },
-    { "Read Data Block Size",			186 },
-    { "Reserved",					187 },
-    { "Reserved",					188 },
-    { "Enable AMP Receiver Reports",		189 },
-    { "AMP Test End",				190 },
-    { "AMP Test Command",				191 },
+        {"Read Flow Control Mode",                     184},
+        {"Write Flow Control Mode",                    185},
+        {"Read Data Block Size",                       186},
+        {"Reserved",                                   187},
+        {"Reserved",                                   188},
+        {"Enable AMP Receiver Reports",                189},
+        {"AMP Test End",                               190},
+        {"AMP Test Command",                           191},
 
-    { "Read Enhanced Transmit Power Level",		192 },
-    { "Reserved",					193 },
-    { "Read Best Effort Flush Timeout",		194 },
-    { "Write Best Effort Flush Timeout",		195 },
-    { "Short Range Mode",				196 },
-    { "Read LE Host Support",			197 },
-    { "Write LE Host Support",			198 },
-    { "Reserved",					199 },
+        {"Read Enhanced Transmit Power Level",         192},
+        {"Reserved",                                   193},
+        {"Read Best Effort Flush Timeout",             194},
+        {"Write Best Effort Flush Timeout",            195},
+        {"Short Range Mode",                           196},
+        {"Read LE Host Support",                       197},
+        {"Write LE Host Support",                      198},
+        {"Reserved",                                   199},
 
-    { "LE Set Event Mask",				200 },
-    { "LE Read Buffer Size",			201 },
-    { "LE Read Local Supported Features",		202 },
-    { "Reserved",					203 },
-    { "LE Set Random Address",			204 },
-    { "LE Set Advertising Parameters",		205 },
-    { "LE Read Advertising Channel TX Power",	206 },
-    { "LE Set Advertising Data",			207 },
+        {"LE Set Event Mask",                          200},
+        {"LE Read Buffer Size",                        201},
+        {"LE Read Local Supported Features",           202},
+        {"Reserved",                                   203},
+        {"LE Set Random Address",                      204},
+        {"LE Set Advertising Parameters",              205},
+        {"LE Read Advertising Channel TX Power",       206},
+        {"LE Set Advertising Data",                    207},
 
-    { "LE Set Scan Response Data",			208 },
-    { "LE Set Advertise Enable",			209 },
-    { "LE Set Scan Parameters",			210 },
-    { "LE Set Scan Enable",				211 },
-    { "LE Create Connection",			212 },
-    { "LE Create Connection Cancel",		213 },
-    { "LE Read White List Size",			214 },
-    { "LE Clear White List",			215 },
+        {"LE Set Scan Response Data",                  208},
+        {"LE Set Advertise Enable",                    209},
+        {"LE Set Scan Parameters",                     210},
+        {"LE Set Scan Enable",                         211},
+        {"LE Create Connection",                       212},
+        {"LE Create Connection Cancel",                213},
+        {"LE Read White List Size",                    214},
+        {"LE Clear White List",                        215},
 
-    { "LE Add Device To White List",		216 },
-    { "LE Remove Device From White List",		217 },
-    { "LE Connection Update",			218 },
-    { "LE Set Host Channel Classification",		219 },
-    { "LE Read Channel Map",			220 },
-    { "LE Read Remote Used Features",		221 },
-    { "LE Encrypt",					222 },
-    { "LE Rand",					223 },
+        {"LE Add Device To White List",                216},
+        {"LE Remove Device From White List",           217},
+        {"LE Connection Update",                       218},
+        {"LE Set Host Channel Classification",         219},
+        {"LE Read Channel Map",                        220},
+        {"LE Read Remote Used Features",               221},
+        {"LE Encrypt",                                 222},
+        {"LE Rand",                                    223},
 
-    { "LE Start Encryption",			224 },
-    { "LE Long Term Key Request Reply",		225 },
-    { "LE Long Term Key Request Negative Reply",	226 },
-    { "LE Read Supported States",			227 },
-    { "LE Receiver Test",				228 },
-    { "LE Transmitter Test",			229 },
-    { "LE Test End",				230 },
-    { "Reserved",					231 },
+        {"LE Start Encryption",                        224},
+        {"LE Long Term Key Request Reply",             225},
+        {"LE Long Term Key Request Negative Reply",    226},
+        {"LE Read Supported States",                   227},
+        {"LE Receiver Test",                           228},
+        {"LE Transmitter Test",                        229},
+        {"LE Test End",                                230},
+        {"Reserved",                                   231},
 
-    { NULL }
+        {NULL}
 };
 
 /**
@@ -703,7 +703,7 @@ static hci_map commands_map[] = {
  * @param cmd	command code value
  * @return		english sentence corresponding to the command code (NULL if error)
  */
-char * hci_cmdtostr(unsigned int cmd) {
+char *hci_cmdtostr(unsigned int cmd) {
     return hci_uint2str(commands_map, cmd);
 }
 
@@ -715,10 +715,10 @@ char * hci_cmdtostr(unsigned int cmd) {
  * @param width
  * @return NULL 	if error else str which is a string of concatenated commands separated by /0
  */
-char * hci_commandstostr(uint8_t * commands, char * pref, int width) {
+char *hci_commandstostr(uint8_t *commands, char *pref, int width) {
     unsigned int maxwidth = width - 3;
-    hci_map * m;
-    char * off, *ptr, *str;
+    hci_map *m;
+    char *off, *ptr, *str;
     int size = 10;
 
     m = commands_map;
@@ -759,16 +759,16 @@ char * hci_commandstostr(uint8_t * commands, char * pref, int width) {
 
 /* Version mapping */
 static hci_map ver_map[] = {
-    { "1.0b",	0x00 },
-    { "1.1",	0x01 },
-    { "1.2",	0x02 },
-    { "2.0",	0x03 },
-    { "2.1",	0x04 },
-    { "3.0",	0x05 },
-    { "4.0",	0x06 },
-    { "4.1",	0x07 },
-    { "4.2",	0x08 },
-    { NULL }
+        {"1.0b", 0x00},
+        {"1.1",  0x01},
+        {"1.2",  0x02},
+        {"2.0",  0x03},
+        {"2.1",  0x04},
+        {"3.0",  0x05},
+        {"4.0",  0x06},
+        {"4.1",  0x07},
+        {"4.2",  0x08},
+        {NULL}
 };
 
 /**
@@ -777,7 +777,7 @@ static hci_map ver_map[] = {
  * @param ver	version code
  * @return		mapping string (NULL if error)
  */
-char * hci_vertostr(unsigned int ver) {
+char *hci_vertostr(unsigned int ver) {
     return hci_uint2str(ver_map, ver);
 }
 
@@ -788,7 +788,7 @@ char * hci_vertostr(unsigned int ver) {
  * @param ver	version code
  * @return		1 of match found, 0 error
  */
-int hci_strtover(char * str, unsigned int * ver) {
+int hci_strtover(char *str, unsigned int *ver) {
     return hci_str2uint(ver_map, str, ver);
 }
 
@@ -798,7 +798,7 @@ int hci_strtover(char * str, unsigned int * ver) {
  * @param ver	version code
  * @return		mapping string (NULL if error)
  */
-char * lmp_vertostr(unsigned int ver) {
+char *lmp_vertostr(unsigned int ver) {
     return hci_uint2str(ver_map, ver);
 }
 
@@ -809,13 +809,13 @@ char * lmp_vertostr(unsigned int ver) {
  * @param ver	version code
  * @return		1 of match found, 0 error
  */
-int lmp_strtover(char * str, unsigned int * ver) {
+int lmp_strtover(char *str, unsigned int *ver) {
     return hci_str2uint(ver_map, str, ver);
 }
 
 static hci_map pal_map[] = {
-    { "3.0",	0x01 },
-    { NULL }
+        {"3.0", 0x01},
+        {NULL}
 };
 
 /**
@@ -824,7 +824,7 @@ static hci_map pal_map[] = {
  * @param ver	pal version code
  * @return		pal version string or NULL if error
  */
-char * pal_vertostr(unsigned int ver) {
+char *pal_vertostr(unsigned int ver) {
     return hci_uint2str(pal_map, ver);
 }
 
@@ -835,105 +835,105 @@ char * pal_vertostr(unsigned int ver) {
  * @param ver	pal version code
  * @return		1 pal version code is set 0 error
  */
-int pal_strtover(char * str, unsigned int * ver) {
+int pal_strtover(char *str, unsigned int *ver) {
     return hci_str2uint(pal_map, str, ver);
 }
 
 /* LMP features mapping */
 static hci_map lmp_features_map[8][9] = {
-    {
-        /* Byte 0 */
-        { "<3-slot packets>",	LMP_3SLOT	},	/* Bit 0 */
-        { "<5-slot packets>",	LMP_5SLOT	},	/* Bit 1 */
-        { "<encryption>",	LMP_ENCRYPT	},	/* Bit 2 */
-        { "<slot offset>",	LMP_SOFFSET	},	/* Bit 3 */
-        { "<timing accuracy>",	LMP_TACCURACY	},	/* Bit 4 */
-        { "<role switch>",	LMP_RSWITCH	},	/* Bit 5 */
-        { "<hold mode>",	LMP_HOLD	},	/* Bit 6 */
-        { "<sniff mode>",	LMP_SNIFF	},	/* Bit 7 */
-        { NULL }
-    },
-    {
-        /* Byte 1 */
-        { "<park state>",	LMP_PARK	},	/* Bit 0 */
-        { "<RSSI>",		LMP_RSSI	},	/* Bit 1 */
-        { "<channel quality>",	LMP_QUALITY	},	/* Bit 2 */
-        { "<SCO link>",		LMP_SCO		},	/* Bit 3 */
-        { "<HV2 packets>",	LMP_HV2		},	/* Bit 4 */
-        { "<HV3 packets>",	LMP_HV3		},	/* Bit 5 */
-        { "<u-law log>",	LMP_ULAW	},	/* Bit 6 */
-        { "<A-law log>",	LMP_ALAW	},	/* Bit 7 */
-        { NULL }
-    },
-    {
-        /* Byte 2 */
-        { "<CVSD>",		LMP_CVSD	},	/* Bit 0 */
-        { "<paging scheme>",	LMP_PSCHEME	},	/* Bit 1 */
-        { "<power control>",	LMP_PCONTROL	},	/* Bit 2 */
-        { "<transparent SCO>",	LMP_TRSP_SCO	},	/* Bit 3 */
-        { "<broadcast encrypt>", LMP_BCAST_ENC	},	/* Bit 7 */
-        { NULL }
-    },
-    {
-        /* Byte 3 */
-        { "<no. 24>",		0x01		},	/* Bit 0 */
-        { "<EDR ACL 2 Mbps>",	LMP_EDR_ACL_2M	},	/* Bit 1 */
-        { "<EDR ACL 3 Mbps>",	LMP_EDR_ACL_3M	},	/* Bit 2 */
-        { "<enhanced iscan>",	LMP_ENH_ISCAN	},	/* Bit 3 */
-        { "<interlaced iscan>",	LMP_ILACE_ISCAN	},	/* Bit 4 */
-        { "<interlaced pscan>",	LMP_ILACE_PSCAN	},	/* Bit 5 */
-        { "<inquiry with RSSI>", LMP_RSSI_INQ	},	/* Bit 6 */
-        { "<extended SCO>",	LMP_ESCO	},	/* Bit 7 */
-        { NULL }
-    },
-    {
-        /* Byte 4 */
-        { "<EV4 packets>",	LMP_EV4		},	/* Bit 0 */
-        { "<EV5 packets>",	LMP_EV5		},	/* Bit 1 */
-        { "<no. 34>",		0x04		},	/* Bit 2 */
-        { "<AFH cap. slave>",	LMP_AFH_CAP_SLV	},	/* Bit 3 */
-        { "<AFH class. slave>",	LMP_AFH_CLS_SLV	},	/* Bit 4 */
-        { "<BR/EDR not supp.>",	LMP_NO_BREDR	},	/* Bit 5 */
-        { "<LE support>",	LMP_LE		},	/* Bit 6 */
-        { "<3-slot EDR ACL>",	LMP_EDR_3SLOT	},	/* Bit 7 */
-        { NULL }
-    },
-    {
-        /* Byte 5 */
-        { "<5-slot EDR ACL>",	LMP_EDR_5SLOT	},	/* Bit 0 */
-        { "<sniff subrating>",	LMP_SNIFF_SUBR	},	/* Bit 1 */
-        { "<pause encryption>",	LMP_PAUSE_ENC	},	/* Bit 2 */
-        { "<AFH cap. master>",	LMP_AFH_CAP_MST	},	/* Bit 3 */
-        { "<AFH class. master>", LMP_AFH_CLS_MST	},	/* Bit 4 */
-        { "<EDR eSCO 2 Mbps>",	LMP_EDR_ESCO_2M	},	/* Bit 5 */
-        { "<EDR eSCO 3 Mbps>",	LMP_EDR_ESCO_3M	},	/* Bit 6 */
-        { "<3-slot EDR eSCO>",	LMP_EDR_3S_ESCO	},	/* Bit 7 */
-        { NULL }
-    },
-    {
-        /* Byte 6 */
-        { "<extended inquiry>",	LMP_EXT_INQ	},	/* Bit 0 */
-        { "<LE and BR/EDR>",	LMP_LE_BREDR	},	/* Bit 1 */
-        { "<no. 50>",		0x04		},	/* Bit 2 */
-        { "<simple pairing>",	LMP_SIMPLE_PAIR	},	/* Bit 3 */
-        { "<encapsulated PDU>",	LMP_ENCAPS_PDU	},	/* Bit 4 */
-        { "<err. data report>",	LMP_ERR_DAT_REP	},	/* Bit 5 */
-        { "<non-flush flag>",	LMP_NFLUSH_PKTS	},	/* Bit 6 */
-        { "<no. 55>",		0x80		},	/* Bit 7 */
-        { NULL }
-    },
-    {
-        /* Byte 7 */
-        { "<LSTO>",		LMP_LSTO	},	/* Bit 1 */
-        { "<inquiry TX power>",	LMP_INQ_TX_PWR	},	/* Bit 1 */
-        { "<EPC>",		LMP_EPC		},	/* Bit 2 */
-        { "<no. 59>",		0x08		},	/* Bit 3 */
-        { "<no. 60>",		0x10		},	/* Bit 4 */
-        { "<no. 61>",		0x20		},	/* Bit 5 */
-        { "<no. 62>",		0x40		},	/* Bit 6 */
-        { "<extended features>", LMP_EXT_FEAT	},	/* Bit 7 */
-        { NULL }
-    },
+        {
+                /* Byte 0 */
+                {"<3-slot packets>",   LMP_3SLOT},    /* Bit 0 */
+                {"<5-slot packets>",   LMP_5SLOT},    /* Bit 1 */
+                {"<encryption>",       LMP_ENCRYPT},    /* Bit 2 */
+                {"<slot offset>",     LMP_SOFFSET},    /* Bit 3 */
+                {"<timing accuracy>",   LMP_TACCURACY},    /* Bit 4 */
+                {"<role switch>",      LMP_RSWITCH},    /* Bit 5 */
+                {"<hold mode>",         LMP_HOLD},    /* Bit 6 */
+                {"<sniff mode>",        LMP_SNIFF},    /* Bit 7 */
+                {NULL}
+        },
+        {
+                /* Byte 1 */
+                {"<park state>",       LMP_PARK},    /* Bit 0 */
+                {"<RSSI>",             LMP_RSSI},    /* Bit 1 */
+                {"<channel quality>",  LMP_QUALITY},    /* Bit 2 */
+                {"<SCO link>",        LMP_SCO},    /* Bit 3 */
+                {"<HV2 packets>",       LMP_HV2},    /* Bit 4 */
+                {"<HV3 packets>",      LMP_HV3},    /* Bit 5 */
+                {"<u-law log>",         LMP_ULAW},    /* Bit 6 */
+                {"<A-law log>",         LMP_ALAW},    /* Bit 7 */
+                {NULL}
+        },
+        {
+                /* Byte 2 */
+                {"<CVSD>",             LMP_CVSD},    /* Bit 0 */
+                {"<paging scheme>",    LMP_PSCHEME},    /* Bit 1 */
+                {"<power control>",    LMP_PCONTROL},    /* Bit 2 */
+                {"<transparent SCO>", LMP_TRSP_SCO},    /* Bit 3 */
+                {"<broadcast encrypt>", LMP_BCAST_ENC},    /* Bit 7 */
+                {NULL}
+        },
+        {
+                /* Byte 3 */
+                {"<no. 24>", 0x01},    /* Bit 0 */
+                {"<EDR ACL 2 Mbps>",   LMP_EDR_ACL_2M},    /* Bit 1 */
+                {"<EDR ACL 3 Mbps>",   LMP_EDR_ACL_3M},    /* Bit 2 */
+                {"<enhanced iscan>",  LMP_ENH_ISCAN},    /* Bit 3 */
+                {"<interlaced iscan>",  LMP_ILACE_ISCAN},    /* Bit 4 */
+                {"<interlaced pscan>", LMP_ILACE_PSCAN},    /* Bit 5 */
+                {"<inquiry with RSSI>", LMP_RSSI_INQ},    /* Bit 6 */
+                {"<extended SCO>",      LMP_ESCO},    /* Bit 7 */
+                {NULL}
+        },
+        {
+                /* Byte 4 */
+                {"<EV4 packets>",      LMP_EV4},    /* Bit 0 */
+                {"<EV5 packets>",      LMP_EV5},    /* Bit 1 */
+                {"<no. 34>", 0x04},    /* Bit 2 */
+                {"<AFH cap. slave>",  LMP_AFH_CAP_SLV},    /* Bit 3 */
+                {"<AFH class. slave>",  LMP_AFH_CLS_SLV},    /* Bit 4 */
+                {"<BR/EDR not supp.>", LMP_NO_BREDR},    /* Bit 5 */
+                {"<LE support>",        LMP_LE},    /* Bit 6 */
+                {"<3-slot EDR ACL>",    LMP_EDR_3SLOT},    /* Bit 7 */
+                {NULL}
+        },
+        {
+                /* Byte 5 */
+                {"<5-slot EDR ACL>",   LMP_EDR_5SLOT},    /* Bit 0 */
+                {"<sniff subrating>",  LMP_SNIFF_SUBR},    /* Bit 1 */
+                {"<pause encryption>", LMP_PAUSE_ENC},    /* Bit 2 */
+                {"<AFH cap. master>", LMP_AFH_CAP_MST},    /* Bit 3 */
+                {"<AFH class. master>", LMP_AFH_CLS_MST},    /* Bit 4 */
+                {"<EDR eSCO 2 Mbps>",  LMP_EDR_ESCO_2M},    /* Bit 5 */
+                {"<EDR eSCO 3 Mbps>",   LMP_EDR_ESCO_3M},    /* Bit 6 */
+                {"<3-slot EDR eSCO>",   LMP_EDR_3S_ESCO},    /* Bit 7 */
+                {NULL}
+        },
+        {
+                /* Byte 6 */
+                {"<extended inquiry>", LMP_EXT_INQ},    /* Bit 0 */
+                {"<LE and BR/EDR>",    LMP_LE_BREDR},    /* Bit 1 */
+                {"<no. 50>", 0x04},    /* Bit 2 */
+                {"<simple pairing>",  LMP_SIMPLE_PAIR},    /* Bit 3 */
+                {"<encapsulated PDU>",  LMP_ENCAPS_PDU},    /* Bit 4 */
+                {"<err. data report>", LMP_ERR_DAT_REP},    /* Bit 5 */
+                {"<non-flush flag>",    LMP_NFLUSH_PKTS},    /* Bit 6 */
+                {"<no. 55>", 0x80},    /* Bit 7 */
+                {NULL}
+        },
+        {
+                /* Byte 7 */
+                {"<LSTO>",             LMP_LSTO},    /* Bit 1 */
+                {"<inquiry TX power>", LMP_INQ_TX_PWR},    /* Bit 1 */
+                {"<EPC>",              LMP_EPC},    /* Bit 2 */
+                {"<no. 59>", 0x08},    /* Bit 3 */
+                {"<no. 60>", 0x10},    /* Bit 4 */
+                {"<no. 61>", 0x20},    /* Bit 5 */
+                {"<no. 62>", 0x40},    /* Bit 6 */
+                {"<extended features>", LMP_EXT_FEAT},    /* Bit 7 */
+                {NULL}
+        },
 };
 
 /**
@@ -944,13 +944,13 @@ static hci_map lmp_features_map[8][9] = {
  * @param width
  * @return			Link Manager Protocol string or NULL if error
  */
-char * lmp_featurestostr(uint8_t * features, char * pref, int width) {
+char *lmp_featurestostr(uint8_t *features, char *pref, int width) {
     unsigned int maxwidth = width - 1;
-    char * off, *ptr, *str;
+    char *off, *ptr, *str;
     int i, size = 10;
 
     for (i = 0; i < 8; i++) {
-        hci_map * m = lmp_features_map[i];
+        hci_map *m = lmp_features_map[i];
 
         while (m->str) {
             if (m->val & features[i])
@@ -973,7 +973,7 @@ char * lmp_featurestostr(uint8_t * features, char * pref, int width) {
     off = ptr;
 
     for (i = 0; i < 8; i++) {
-        hci_map * m = lmp_features_map[i];
+        hci_map *m = lmp_features_map[i];
 
         while (m->str) {
             if (m->val & features[i]) {
@@ -1003,8 +1003,8 @@ char * lmp_featurestostr(uint8_t * features, char * pref, int width) {
  */
 int hci_for_each_dev(int flag, int (*func)(int dd, int dev_id, long arg),
                      long arg) {
-    struct hci_dev_list_req * dl;
-    struct hci_dev_req * dr;
+    struct hci_dev_list_req *dl;
+    struct hci_dev_req *dr;
     int dev_id = -1;
     int i, sk, err = 0;
 
@@ -1039,10 +1039,10 @@ int hci_for_each_dev(int flag, int (*func)(int dd, int dev_id, long arg),
     if (dev_id < 0)
         err = ENODEV;
 
-free:
+    free:
     free(dl);
 
-done:
+    done:
     close(sk);
     errno = err;
 
@@ -1057,7 +1057,7 @@ done:
  * @return
  */
 static int __other_bdaddr(int dd, int dev_id, long arg) {
-    struct hci_dev_info di = { .dev_id = dev_id };
+    struct hci_dev_info di = {.dev_id = dev_id};
 
     if (ioctl(dd, HCIGETDEVINFO, (void *) &di))
         return 0;
@@ -1076,7 +1076,7 @@ static int __other_bdaddr(int dd, int dev_id, long arg) {
  * @return
  */
 static int __same_bdaddr(int dd, int dev_id, long arg) {
-    struct hci_dev_info di = { .dev_id = dev_id };
+    struct hci_dev_info di = {.dev_id = dev_id};
 
     if (ioctl(dd, HCIGETDEVINFO, (void *) &di))
         return 0;
@@ -1090,7 +1090,7 @@ static int __same_bdaddr(int dd, int dev_id, long arg) {
  * @param bdaddr
  * @return
  */
-int hci_get_route(bdaddr_t * bdaddr) {
+int hci_get_route(bdaddr_t *bdaddr) {
     int dev_id;
 
     dev_id = hci_for_each_dev(HCI_UP, __other_bdaddr,
@@ -1108,7 +1108,7 @@ int hci_get_route(bdaddr_t * bdaddr) {
  * @param str	string should be hci<n>
  * @return		bt device number (-1 if error)
  */
-int hci_devid(const char * str) {
+int hci_devid(const char *str) {
     bdaddr_t ba;
     int id = -1;
 
@@ -1132,7 +1132,7 @@ int hci_devid(const char * str) {
  * @param di		device info structure if ok
  * @return			0 info structure set else error
  */
-int hci_devinfo(int dev_id, struct hci_dev_info * di) {
+int hci_devinfo(int dev_id, struct hci_dev_info *di) {
     int dd, err, ret;
 
     dd = socket(AF_BLUETOOTH, SOCK_RAW | SOCK_CLOEXEC, BTPROTO_HCI);
@@ -1158,7 +1158,7 @@ int hci_devinfo(int dev_id, struct hci_dev_info * di) {
  * @param bdaddr
  * @return			0 = OK, -1 = Error
  */
-int hci_devba(int dev_id, bdaddr_t * bdaddr) {
+int hci_devba(int dev_id, bdaddr_t *bdaddr) {
     struct hci_dev_info di;
 
     memset(&di, 0, sizeof(di));
@@ -1187,11 +1187,11 @@ int hci_devba(int dev_id, bdaddr_t * bdaddr) {
  * @param flags
  * @return
  */
-int hci_inquiry(int dev_id, int len, int nrsp, const uint8_t * lap,
-                inquiry_info ** ii, long flags) {
-    struct hci_inquiry_req * ir;
+int hci_inquiry(int dev_id, int len, int nrsp, const uint8_t *lap,
+                inquiry_info **ii, long flags) {
+    struct hci_inquiry_req *ir;
     uint8_t num_rsp = nrsp;
-    void * buf;
+    void *buf;
     int dd, size, err, ret = -1;
 
     if (nrsp <= 0) {
@@ -1216,10 +1216,10 @@ int hci_inquiry(int dev_id, int len, int nrsp, const uint8_t * lap,
         goto done;
 
     ir = buf;
-    ir->dev_id  = dev_id;
+    ir->dev_id = dev_id;
     ir->num_rsp = num_rsp;
-    ir->length  = len;
-    ir->flags   = flags;
+    ir->length = len;
+    ir->flags = flags;
 
     if (lap) {
         memcpy(ir->lap, lap, 3);
@@ -1244,10 +1244,10 @@ int hci_inquiry(int dev_id, int len, int nrsp, const uint8_t * lap,
     } else
         ret = -1;
 
-free:
+    free:
     free(buf);
 
-done:
+    done:
     err = errno;
     close(dd);
     errno = err;
@@ -1285,7 +1285,7 @@ int hci_open_dev(int dev_id) {
 
     return dd;
 
-failed:
+    failed:
     err = errno;
     close(dd);
     errno = err;
@@ -1315,7 +1315,7 @@ int hci_close_dev(int dd) {
  * @param param
  * @return
  */
-int hci_send_cmd(int dd, uint16_t ogf, uint16_t ocf, uint8_t plen, void * param) {
+int hci_send_cmd(int dd, uint16_t ogf, uint16_t ocf, uint8_t plen, void *param) {
     uint8_t type = HCI_COMMAND_PKT;
     hci_command_hdr hc;
     struct iovec iv[3];
@@ -1325,14 +1325,14 @@ int hci_send_cmd(int dd, uint16_t ogf, uint16_t ocf, uint8_t plen, void * param)
     hc.plen = plen;
 
     iv[0].iov_base = &type;
-    iv[0].iov_len  = 1;
+    iv[0].iov_len = 1;
     iv[1].iov_base = &hc;
-    iv[1].iov_len  = HCI_COMMAND_HDR_SIZE;
+    iv[1].iov_len = HCI_COMMAND_HDR_SIZE;
     ivn = 2;
 
     if (plen) {
         iv[2].iov_base = param;
-        iv[2].iov_len  = plen;
+        iv[2].iov_len = plen;
         ivn = 3;
     }
 
@@ -1352,74 +1352,80 @@ int hci_send_cmd(int dd, uint16_t ogf, uint16_t ocf, uint8_t plen, void * param)
  * @param to
  * @return
  */
-int hci_send_req(int dd, struct hci_request * r, int to) {
+int hci_send_req(int dd, struct hci_request *r, int to) {
     unsigned char buf[HCI_MAX_EVENT_SIZE], *ptr;
     uint16_t opcode = htobs(cmd_opcode_pack(r->ogf, r->ocf));
     struct hci_filter nf, of;
     socklen_t olen;
-    hci_event_hdr * hdr;
+    hci_event_hdr *hdr;
     int err, try;
 
     olen = sizeof(of);
-    if (getsockopt(dd, SOL_HCI, HCI_FILTER, &of, &olen) < 0)
+    if (getsockopt(dd, SOL_HCI, HCI_FILTER, &of, &olen) < 0) {
+        printf("getsockopt failed HCI_FILTER\n");
         return -1;
+    }
 
     hci_filter_clear(&nf);
-    hci_filter_set_ptype(HCI_EVENT_PKT,  &nf);
+    hci_filter_set_ptype(HCI_EVENT_PKT, &nf);
     hci_filter_set_event(EVT_CMD_STATUS, &nf);
     hci_filter_set_event(EVT_CMD_COMPLETE, &nf);
     hci_filter_set_event(EVT_LE_META_EVENT, &nf);
     hci_filter_set_event(r->event, &nf);
     hci_filter_set_opcode(opcode, &nf);
-    if (setsockopt(dd, SOL_HCI, HCI_FILTER, &nf, sizeof(nf)) < 0)
+    if (setsockopt(dd, SOL_HCI, HCI_FILTER, &nf, sizeof(nf)) < 0) {
+        printf("setsockopt HCI_FILTER failed\n");
         return -1;
+    }
 
-    if (hci_send_cmd(dd, r->ogf, r->ocf, r->clen, r->cparam) < 0)
+    if (hci_send_cmd(dd, r->ogf, r->ocf, r->clen, r->cparam) < 0) {
+        printf("hci_send_cmd failed\n");
         goto failed;
+    }
 
     try = 10;
     while (try--) {
-            evt_cmd_complete * cc;
-            evt_cmd_status * cs;
-            evt_remote_name_req_complete * rn;
-            evt_le_meta_event * me;
-            remote_name_req_cp * cp;
-            int len;
+        evt_cmd_complete *cc;
+        evt_cmd_status *cs;
+        evt_remote_name_req_complete *rn;
+        evt_le_meta_event *me;
+        remote_name_req_cp *cp;
+        int len;
 
-            if (to) {
-                struct pollfd p;
-                int n;
+        if (to) {
+            struct pollfd p;
+            int n;
 
-                p.fd = dd;
-                p.events = POLLIN;
-                while ((n = poll(&p, 1, to)) < 0) {
-                    if (errno == EAGAIN || errno == EINTR)
-                        continue;
-                    goto failed;
-                }
-
-                if (!n) {
-                    errno = ETIMEDOUT;
-                    goto failed;
-                }
-
-                to -= 10;
-                if (to < 0)
-                    to = 0;
-
-            }
-
-            while ((len = read(dd, buf, sizeof(buf))) < 0) {
+            p.fd = dd;
+            p.events = POLLIN;
+            while ((n = poll(&p, 1, to)) < 0) {
                 if (errno == EAGAIN || errno == EINTR)
                     continue;
                 goto failed;
             }
 
-            hdr = (void *) (buf + 1);
-            ptr = buf + (1 + HCI_EVENT_HDR_SIZE);
-            len -= (1 + HCI_EVENT_HDR_SIZE);
+            if (!n) {
+                errno = ETIMEDOUT;
+                goto failed;
+            }
 
-            switch (hdr->evt) {
+            to -= 10;
+            if (to < 0)
+                to = 0;
+
+        }
+
+        while ((len = read(dd, buf, sizeof(buf))) < 0) {
+            if (errno == EAGAIN || errno == EINTR)
+                continue;
+            goto failed;
+        }
+
+        hdr = (void *) (buf + 1);
+        ptr = buf + (1 + HCI_EVENT_HDR_SIZE);
+        len -= (1 + HCI_EVENT_HDR_SIZE);
+
+        switch (hdr->evt) {
             case EVT_CMD_STATUS:
                 cs = (void *) ptr;
 
@@ -1483,17 +1489,17 @@ int hci_send_req(int dd, struct hci_request * r, int to) {
                 r->rlen = MIN(len, r->rlen);
                 memcpy(r->rparam, ptr, r->rlen);
                 goto done;
-            }
         }
+    }
     errno = ETIMEDOUT;
 
-failed:
+    failed:
     err = errno;
     setsockopt(dd, SOL_HCI, HCI_FILTER, &of, sizeof(of));
     errno = err;
     return -1;
 
-done:
+    done:
     setsockopt(dd, SOL_HCI, HCI_FILTER, &of, sizeof(of));
     return 0;
 }
@@ -1510,28 +1516,28 @@ done:
  * @param to
  * @return
  */
-int hci_create_connection(int dd, const bdaddr_t * bdaddr, uint16_t ptype,
+int hci_create_connection(int dd, const bdaddr_t *bdaddr, uint16_t ptype,
                           uint16_t clkoffset, uint8_t rswitch,
-                          uint16_t * handle, int to) {
+                          uint16_t *handle, int to) {
     evt_conn_complete rp;
     create_conn_cp cp;
     struct hci_request rq;
 
     memset(&cp, 0, sizeof(cp));
     bacpy(&cp.bdaddr, bdaddr);
-    cp.pkt_type       = ptype;
+    cp.pkt_type = ptype;
     cp.pscan_rep_mode = 0x02;
-    cp.clock_offset   = clkoffset;
-    cp.role_switch    = rswitch;
+    cp.clock_offset = clkoffset;
+    cp.role_switch = rswitch;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_CREATE_CONN;
-    rq.event  = EVT_CONN_COMPLETE;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_CREATE_CONN;
+    rq.event = EVT_CONN_COMPLETE;
     rq.cparam = &cp;
-    rq.clen   = CREATE_CONN_CP_SIZE;
+    rq.clen = CREATE_CONN_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_CONN_COMPLETE_SIZE;
+    rq.rlen = EVT_CONN_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -1564,13 +1570,13 @@ int hci_disconnect(int dd, uint16_t handle, uint8_t reason, int to) {
     cp.reason = reason;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_DISCONNECT;
-    rq.event  = EVT_DISCONN_COMPLETE;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_DISCONNECT;
+    rq.event = EVT_DISCONN_COMPLETE;
     rq.cparam = &cp;
-    rq.clen   = DISCONNECT_CP_SIZE;
+    rq.clen = DISCONNECT_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_DISCONN_COMPLETE_SIZE;
+    rq.rlen = EVT_DISCONN_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -1591,7 +1597,7 @@ int hci_disconnect(int dd, uint16_t handle, uint8_t reason, int to) {
  * @param to
  * @return
  */
-int hci_le_add_white_list(int dd, const bdaddr_t * bdaddr, uint8_t type, int to) {
+int hci_le_add_white_list(int dd, const bdaddr_t *bdaddr, uint8_t type, int to) {
     struct hci_request rq;
     le_add_device_to_white_list_cp cp;
     uint8_t status;
@@ -1628,7 +1634,7 @@ int hci_le_add_white_list(int dd, const bdaddr_t * bdaddr, uint8_t type, int to)
  * @param to
  * @return
  */
-int hci_le_rm_white_list(int dd, const bdaddr_t * bdaddr, uint8_t type, int to) {
+int hci_le_rm_white_list(int dd, const bdaddr_t *bdaddr, uint8_t type, int to) {
     struct hci_request rq;
     le_remove_device_from_white_list_cp cp;
     uint8_t status;
@@ -1664,7 +1670,7 @@ int hci_le_rm_white_list(int dd, const bdaddr_t * bdaddr, uint8_t type, int to) 
  * @param to
  * @return
  */
-int hci_le_read_white_list_size(int dd, uint8_t * size, int to) {
+int hci_le_read_white_list_size(int dd, uint8_t *size, int to) {
     struct hci_request rq;
     le_read_white_list_size_rp rp;
 
@@ -1729,8 +1735,8 @@ int hci_le_clear_white_list(int dd, int to) {
  * @param to
  * @return
  */
-int hci_le_add_resolving_list(int dd, const bdaddr_t * bdaddr, uint8_t type,
-                              uint8_t * peer_irk, uint8_t * local_irk, int to) {
+int hci_le_add_resolving_list(int dd, const bdaddr_t *bdaddr, uint8_t type,
+                              uint8_t *peer_irk, uint8_t *local_irk, int to) {
     struct hci_request rq;
     le_add_device_to_resolv_list_cp cp;
     uint8_t status;
@@ -1771,7 +1777,7 @@ int hci_le_add_resolving_list(int dd, const bdaddr_t * bdaddr, uint8_t type,
  * @param to
  * @return
  */
-int hci_le_rm_resolving_list(int dd, const bdaddr_t * bdaddr, uint8_t type, int to) {
+int hci_le_rm_resolving_list(int dd, const bdaddr_t *bdaddr, uint8_t type, int to) {
     struct hci_request rq;
     le_remove_device_from_resolv_list_cp cp;
     uint8_t status;
@@ -1835,7 +1841,7 @@ int hci_le_clear_resolving_list(int dd, int to) {
  * @param to
  * @return
  */
-int hci_le_read_resolving_list_size(int dd, uint8_t * size, int to) {
+int hci_le_read_resolving_list_size(int dd, uint8_t *size, int to) {
     struct hci_request rq;
     le_read_resolv_list_size_rp rp;
 
@@ -1903,15 +1909,15 @@ int hci_le_set_address_resolution_enable(int dd, uint8_t enable, int to) {
  * @param to
  * @return
  */
-int hci_read_local_name(int dd, int len, char * name, int to) {
+int hci_read_local_name(int dd, int len, char *name, int to) {
     read_local_name_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_LOCAL_NAME;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_LOCAL_NAME;
     rq.rparam = &rp;
-    rq.rlen   = READ_LOCAL_NAME_RP_SIZE;
+    rq.rlen = READ_LOCAL_NAME_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -1934,7 +1940,7 @@ int hci_read_local_name(int dd, int len, char * name, int to) {
  * @param to
  * @return
  */
-int hci_write_local_name(int dd, const char * name, int to) {
+int hci_write_local_name(int dd, const char *name, int to) {
     change_local_name_cp cp;
     struct hci_request rq;
 
@@ -1942,10 +1948,10 @@ int hci_write_local_name(int dd, const char * name, int to) {
     strncpy((char *) cp.name, name, sizeof(cp.name));
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_CHANGE_LOCAL_NAME;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_CHANGE_LOCAL_NAME;
     rq.cparam = &cp;
-    rq.clen   = CHANGE_LOCAL_NAME_CP_SIZE;
+    rq.clen = CHANGE_LOCAL_NAME_CP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -1965,10 +1971,10 @@ int hci_write_local_name(int dd, const char * name, int to) {
  * @param to
  * @return
  */
-int hci_read_remote_name_with_clock_offset(int dd, const bdaddr_t * bdaddr,
-        uint8_t pscan_rep_mode,
-        uint16_t clkoffset,
-        int len, char * name, int to) {
+int hci_read_remote_name_with_clock_offset(int dd, const bdaddr_t *bdaddr,
+                                           uint8_t pscan_rep_mode,
+                                           uint16_t clkoffset,
+                                           int len, char *name, int to) {
     evt_remote_name_req_complete rn;
     remote_name_req_cp cp;
     struct hci_request rq;
@@ -1976,16 +1982,16 @@ int hci_read_remote_name_with_clock_offset(int dd, const bdaddr_t * bdaddr,
     memset(&cp, 0, sizeof(cp));
     bacpy(&cp.bdaddr, bdaddr);
     cp.pscan_rep_mode = pscan_rep_mode;
-    cp.clock_offset   = clkoffset;
+    cp.clock_offset = clkoffset;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_REMOTE_NAME_REQ;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_REMOTE_NAME_REQ;
     rq.cparam = &cp;
-    rq.clen   = REMOTE_NAME_REQ_CP_SIZE;
-    rq.event  = EVT_REMOTE_NAME_REQ_COMPLETE;
+    rq.clen = REMOTE_NAME_REQ_CP_SIZE;
+    rq.event = EVT_REMOTE_NAME_REQ_COMPLETE;
     rq.rparam = &rn;
-    rq.rlen   = EVT_REMOTE_NAME_REQ_COMPLETE_SIZE;
+    rq.rlen = EVT_REMOTE_NAME_REQ_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2010,10 +2016,10 @@ int hci_read_remote_name_with_clock_offset(int dd, const bdaddr_t * bdaddr,
  * @param to
  * @return
  */
-int hci_read_remote_name(int dd, const bdaddr_t * bdaddr, int len, char * name,
+int hci_read_remote_name(int dd, const bdaddr_t *bdaddr, int len, char *name,
                          int to) {
     return hci_read_remote_name_with_clock_offset(dd, bdaddr, 0x02, 0x0000,
-            len, name, to);
+                                                  len, name, to);
 }
 
 /**
@@ -2024,7 +2030,7 @@ int hci_read_remote_name(int dd, const bdaddr_t * bdaddr, int len, char * name,
  * @param to
  * @return
  */
-int hci_read_remote_name_cancel(int dd, const bdaddr_t * bdaddr, int to) {
+int hci_read_remote_name_cancel(int dd, const bdaddr_t *bdaddr, int to) {
     remote_name_req_cancel_cp cp;
     struct hci_request rq;
 
@@ -2032,10 +2038,10 @@ int hci_read_remote_name_cancel(int dd, const bdaddr_t * bdaddr, int to) {
     bacpy(&cp.bdaddr, bdaddr);
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_REMOTE_NAME_REQ_CANCEL;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_REMOTE_NAME_REQ_CANCEL;
     rq.cparam = &cp;
-    rq.clen   = REMOTE_NAME_REQ_CANCEL_CP_SIZE;
+    rq.clen = REMOTE_NAME_REQ_CANCEL_CP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2052,7 +2058,7 @@ int hci_read_remote_name_cancel(int dd, const bdaddr_t * bdaddr, int to) {
  * @param to
  * @return
  */
-int hci_read_remote_version(int dd, uint16_t handle, struct hci_version * ver,
+int hci_read_remote_version(int dd, uint16_t handle, struct hci_version *ver,
                             int to) {
     evt_read_remote_version_complete rp;
     read_remote_version_cp cp;
@@ -2062,13 +2068,13 @@ int hci_read_remote_version(int dd, uint16_t handle, struct hci_version * ver,
     cp.handle = handle;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_READ_REMOTE_VERSION;
-    rq.event  = EVT_READ_REMOTE_VERSION_COMPLETE;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_READ_REMOTE_VERSION;
+    rq.event = EVT_READ_REMOTE_VERSION_COMPLETE;
     rq.cparam = &cp;
-    rq.clen   = READ_REMOTE_VERSION_CP_SIZE;
+    rq.clen = READ_REMOTE_VERSION_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_READ_REMOTE_VERSION_COMPLETE_SIZE;
+    rq.rlen = EVT_READ_REMOTE_VERSION_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2079,8 +2085,8 @@ int hci_read_remote_version(int dd, uint16_t handle, struct hci_version * ver,
     }
 
     ver->manufacturer = btohs(rp.manufacturer);
-    ver->lmp_ver      = rp.lmp_ver;
-    ver->lmp_subver   = btohs(rp.lmp_subver);
+    ver->lmp_ver = rp.lmp_ver;
+    ver->lmp_subver = btohs(rp.lmp_subver);
     return 0;
 }
 
@@ -2093,7 +2099,7 @@ int hci_read_remote_version(int dd, uint16_t handle, struct hci_version * ver,
  * @param to
  * @return
  */
-int hci_read_remote_features(int dd, uint16_t handle, uint8_t * features, int to) {
+int hci_read_remote_features(int dd, uint16_t handle, uint8_t *features, int to) {
     evt_read_remote_features_complete rp;
     read_remote_features_cp cp;
     struct hci_request rq;
@@ -2102,13 +2108,13 @@ int hci_read_remote_features(int dd, uint16_t handle, uint8_t * features, int to
     cp.handle = handle;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_READ_REMOTE_FEATURES;
-    rq.event  = EVT_READ_REMOTE_FEATURES_COMPLETE;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_READ_REMOTE_FEATURES;
+    rq.event = EVT_READ_REMOTE_FEATURES_COMPLETE;
     rq.cparam = &cp;
-    rq.clen   = READ_REMOTE_FEATURES_CP_SIZE;
+    rq.clen = READ_REMOTE_FEATURES_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_READ_REMOTE_FEATURES_COMPLETE_SIZE;
+    rq.rlen = EVT_READ_REMOTE_FEATURES_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2136,24 +2142,24 @@ int hci_read_remote_features(int dd, uint16_t handle, uint8_t * features, int to
  * @return
  */
 int hci_read_remote_ext_features(int dd, uint16_t handle, uint8_t page,
-                                 uint8_t * max_page, uint8_t * features,
+                                 uint8_t *max_page, uint8_t *features,
                                  int to) {
     evt_read_remote_ext_features_complete rp;
     read_remote_ext_features_cp cp;
     struct hci_request rq;
 
     memset(&cp, 0, sizeof(cp));
-    cp.handle   = handle;
+    cp.handle = handle;
     cp.page_num = page;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_READ_REMOTE_EXT_FEATURES;
-    rq.event  = EVT_READ_REMOTE_EXT_FEATURES_COMPLETE;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_READ_REMOTE_EXT_FEATURES;
+    rq.event = EVT_READ_REMOTE_EXT_FEATURES_COMPLETE;
     rq.cparam = &cp;
-    rq.clen   = READ_REMOTE_EXT_FEATURES_CP_SIZE;
+    rq.clen = READ_REMOTE_EXT_FEATURES_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_READ_REMOTE_EXT_FEATURES_COMPLETE_SIZE;
+    rq.rlen = EVT_READ_REMOTE_EXT_FEATURES_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2181,7 +2187,7 @@ int hci_read_remote_ext_features(int dd, uint16_t handle, uint8_t page,
  * @param to
  * @return
  */
-int hci_read_clock_offset(int dd, uint16_t handle, uint16_t * clkoffset, int to) {
+int hci_read_clock_offset(int dd, uint16_t handle, uint16_t *clkoffset, int to) {
     evt_read_clock_offset_complete rp;
     read_clock_offset_cp cp;
     struct hci_request rq;
@@ -2190,13 +2196,13 @@ int hci_read_clock_offset(int dd, uint16_t handle, uint16_t * clkoffset, int to)
     cp.handle = handle;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_READ_CLOCK_OFFSET;
-    rq.event  = EVT_READ_CLOCK_OFFSET_COMPLETE;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_READ_CLOCK_OFFSET;
+    rq.event = EVT_READ_CLOCK_OFFSET_COMPLETE;
     rq.cparam = &cp;
-    rq.clen   = READ_CLOCK_OFFSET_CP_SIZE;
+    rq.clen = READ_CLOCK_OFFSET_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_READ_CLOCK_OFFSET_COMPLETE_SIZE;
+    rq.rlen = EVT_READ_CLOCK_OFFSET_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2218,15 +2224,15 @@ int hci_read_clock_offset(int dd, uint16_t handle, uint16_t * clkoffset, int to)
  * @param to
  * @return
  */
-int hci_read_local_version(int dd, struct hci_version * ver, int to) {
+int hci_read_local_version(int dd, struct hci_version *ver, int to) {
     read_local_version_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_INFO_PARAM;
-    rq.ocf    = OCF_READ_LOCAL_VERSION;
+    rq.ogf = OGF_INFO_PARAM;
+    rq.ocf = OCF_READ_LOCAL_VERSION;
     rq.rparam = &rp;
-    rq.rlen   = READ_LOCAL_VERSION_RP_SIZE;
+    rq.rlen = READ_LOCAL_VERSION_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2237,10 +2243,10 @@ int hci_read_local_version(int dd, struct hci_version * ver, int to) {
     }
 
     ver->manufacturer = btohs(rp.manufacturer);
-    ver->hci_ver      = rp.hci_ver;
-    ver->hci_rev      = btohs(rp.hci_rev);
-    ver->lmp_ver      = rp.lmp_ver;
-    ver->lmp_subver   = btohs(rp.lmp_subver);
+    ver->hci_ver = rp.hci_ver;
+    ver->hci_rev = btohs(rp.hci_rev);
+    ver->lmp_ver = rp.lmp_ver;
+    ver->lmp_subver = btohs(rp.lmp_subver);
     return 0;
 }
 
@@ -2252,15 +2258,15 @@ int hci_read_local_version(int dd, struct hci_version * ver, int to) {
  * @param to
  * @return
  */
-int hci_read_local_commands(int dd, uint8_t * commands, int to) {
+int hci_read_local_commands(int dd, uint8_t *commands, int to) {
     read_local_commands_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_INFO_PARAM;
-    rq.ocf    = OCF_READ_LOCAL_COMMANDS;
+    rq.ogf = OGF_INFO_PARAM;
+    rq.ocf = OCF_READ_LOCAL_COMMANDS;
     rq.rparam = &rp;
-    rq.rlen   = READ_LOCAL_COMMANDS_RP_SIZE;
+    rq.rlen = READ_LOCAL_COMMANDS_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2284,15 +2290,15 @@ int hci_read_local_commands(int dd, uint8_t * commands, int to) {
  * @param to
  * @return
  */
-int hci_read_local_features(int dd, uint8_t * features, int to) {
+int hci_read_local_features(int dd, uint8_t *features, int to) {
     read_local_features_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_INFO_PARAM;
-    rq.ocf    = OCF_READ_LOCAL_FEATURES;
+    rq.ogf = OGF_INFO_PARAM;
+    rq.ocf = OCF_READ_LOCAL_FEATURES;
     rq.rparam = &rp;
-    rq.rlen   = READ_LOCAL_FEATURES_RP_SIZE;
+    rq.rlen = READ_LOCAL_FEATURES_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2318,8 +2324,8 @@ int hci_read_local_features(int dd, uint8_t * features, int to) {
  * @param to
  * @return
  */
-int hci_read_local_ext_features(int dd, uint8_t page, uint8_t * max_page,
-                                uint8_t * features, int to) {
+int hci_read_local_ext_features(int dd, uint8_t page, uint8_t *max_page,
+                                uint8_t *features, int to) {
     read_local_ext_features_cp cp;
     read_local_ext_features_rp rp;
     struct hci_request rq;
@@ -2327,12 +2333,12 @@ int hci_read_local_ext_features(int dd, uint8_t page, uint8_t * max_page,
     cp.page_num = page;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_INFO_PARAM;
-    rq.ocf    = OCF_READ_LOCAL_EXT_FEATURES;
+    rq.ogf = OGF_INFO_PARAM;
+    rq.ocf = OCF_READ_LOCAL_EXT_FEATURES;
     rq.cparam = &cp;
-    rq.clen   = READ_LOCAL_EXT_FEATURES_CP_SIZE;
+    rq.clen = READ_LOCAL_EXT_FEATURES_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = READ_LOCAL_EXT_FEATURES_RP_SIZE;
+    rq.rlen = READ_LOCAL_EXT_FEATURES_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2359,15 +2365,15 @@ int hci_read_local_ext_features(int dd, uint8_t page, uint8_t * max_page,
  * @param to
  * @return
  */
-int hci_read_bd_addr(int dd, bdaddr_t * bdaddr, int to) {
+int hci_read_bd_addr(int dd, bdaddr_t *bdaddr, int to) {
     read_bd_addr_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_INFO_PARAM;
-    rq.ocf    = OCF_READ_BD_ADDR;
+    rq.ogf = OGF_INFO_PARAM;
+    rq.ocf = OCF_READ_BD_ADDR;
     rq.rparam = &rp;
-    rq.rlen   = READ_BD_ADDR_RP_SIZE;
+    rq.rlen = READ_BD_ADDR_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2391,15 +2397,15 @@ int hci_read_bd_addr(int dd, bdaddr_t * bdaddr, int to) {
  * @param to
  * @return
  */
-int hci_read_class_of_dev(int dd, uint8_t * cls, int to) {
+int hci_read_class_of_dev(int dd, uint8_t *cls, int to) {
     read_class_of_dev_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_CLASS_OF_DEV;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_CLASS_OF_DEV;
     rq.rparam = &rp;
-    rq.rlen   = READ_CLASS_OF_DEV_RP_SIZE;
+    rq.rlen = READ_CLASS_OF_DEV_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2429,10 +2435,10 @@ int hci_write_class_of_dev(int dd, uint32_t cls, int to) {
     cp.dev_class[0] = cls & 0xff;
     cp.dev_class[1] = (cls >> 8) & 0xff;
     cp.dev_class[2] = (cls >> 16) & 0xff;
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_CLASS_OF_DEV;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_CLASS_OF_DEV;
     rq.cparam = &cp;
-    rq.clen   = WRITE_CLASS_OF_DEV_CP_SIZE;
+    rq.clen = WRITE_CLASS_OF_DEV_CP_SIZE;
     return hci_send_req(dd, &rq, to);
 }
 
@@ -2444,15 +2450,15 @@ int hci_write_class_of_dev(int dd, uint32_t cls, int to) {
  * @param to
  * @return
  */
-int hci_read_voice_setting(int dd, uint16_t * vs, int to) {
+int hci_read_voice_setting(int dd, uint16_t *vs, int to) {
     read_voice_setting_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_VOICE_SETTING;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_VOICE_SETTING;
     rq.rparam = &rp;
-    rq.rlen   = READ_VOICE_SETTING_RP_SIZE;
+    rq.rlen = READ_VOICE_SETTING_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2480,10 +2486,10 @@ int hci_write_voice_setting(int dd, uint16_t vs, int to) {
 
     memset(&rq, 0, sizeof(rq));
     cp.voice_setting = vs;
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_VOICE_SETTING;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_VOICE_SETTING;
     rq.cparam = &cp;
-    rq.clen   = WRITE_VOICE_SETTING_CP_SIZE;
+    rq.clen = WRITE_VOICE_SETTING_CP_SIZE;
 
     return hci_send_req(dd, &rq, to);
 }
@@ -2497,15 +2503,15 @@ int hci_write_voice_setting(int dd, uint16_t vs, int to) {
  * @param to
  * @return
  */
-int hci_read_current_iac_lap(int dd, uint8_t * num_iac, uint8_t * lap, int to) {
+int hci_read_current_iac_lap(int dd, uint8_t *num_iac, uint8_t *lap, int to) {
     read_current_iac_lap_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_CURRENT_IAC_LAP;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_CURRENT_IAC_LAP;
     rq.rparam = &rp;
-    rq.rlen   = READ_CURRENT_IAC_LAP_RP_SIZE;
+    rq.rlen = READ_CURRENT_IAC_LAP_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2529,7 +2535,7 @@ int hci_read_current_iac_lap(int dd, uint8_t * num_iac, uint8_t * lap, int to) {
  * @param to
  * @return
  */
-int hci_write_current_iac_lap(int dd, uint8_t num_iac, uint8_t * lap, int to) {
+int hci_write_current_iac_lap(int dd, uint8_t num_iac, uint8_t *lap, int to) {
     write_current_iac_lap_cp cp;
     struct hci_request rq;
 
@@ -2538,10 +2544,10 @@ int hci_write_current_iac_lap(int dd, uint8_t num_iac, uint8_t * lap, int to) {
     memcpy(&cp.lap, lap, num_iac * 3);
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_CURRENT_IAC_LAP;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_CURRENT_IAC_LAP;
     rq.cparam = &cp;
-    rq.clen   = num_iac * 3 + 1;
+    rq.clen = num_iac * 3 + 1;
 
     return hci_send_req(dd, &rq, to);
 }
@@ -2555,7 +2561,7 @@ int hci_write_current_iac_lap(int dd, uint8_t num_iac, uint8_t * lap, int to) {
  * @param to
  * @return
  */
-int hci_read_stored_link_key(int dd, bdaddr_t * bdaddr, uint8_t all, int to) {
+int hci_read_stored_link_key(int dd, bdaddr_t *bdaddr, uint8_t all, int to) {
     read_stored_link_key_cp cp;
     struct hci_request rq;
 
@@ -2564,10 +2570,10 @@ int hci_read_stored_link_key(int dd, bdaddr_t * bdaddr, uint8_t all, int to) {
     cp.read_all = all;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_STORED_LINK_KEY;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_STORED_LINK_KEY;
     rq.cparam = &cp;
-    rq.clen   = READ_STORED_LINK_KEY_CP_SIZE;
+    rq.clen = READ_STORED_LINK_KEY_CP_SIZE;
 
     return hci_send_req(dd, &rq, to);
 }
@@ -2581,7 +2587,7 @@ int hci_read_stored_link_key(int dd, bdaddr_t * bdaddr, uint8_t all, int to) {
  * @param to
  * @return
  */
-int hci_write_stored_link_key(int dd, bdaddr_t * bdaddr, uint8_t * key, int to) {
+int hci_write_stored_link_key(int dd, bdaddr_t *bdaddr, uint8_t *key, int to) {
     unsigned char cp[WRITE_STORED_LINK_KEY_CP_SIZE + 6 + 16];
     struct hci_request rq;
 
@@ -2591,10 +2597,10 @@ int hci_write_stored_link_key(int dd, bdaddr_t * bdaddr, uint8_t * key, int to) 
     memcpy(cp + 7, key, 16);
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_STORED_LINK_KEY;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_STORED_LINK_KEY;
     rq.cparam = &cp;
-    rq.clen   = WRITE_STORED_LINK_KEY_CP_SIZE + 6 + 16;
+    rq.clen = WRITE_STORED_LINK_KEY_CP_SIZE + 6 + 16;
 
     return hci_send_req(dd, &rq, to);
 }
@@ -2608,7 +2614,7 @@ int hci_write_stored_link_key(int dd, bdaddr_t * bdaddr, uint8_t * key, int to) 
  * @param to
  * @return
  */
-int hci_delete_stored_link_key(int dd, bdaddr_t * bdaddr, uint8_t all, int to) {
+int hci_delete_stored_link_key(int dd, bdaddr_t *bdaddr, uint8_t all, int to) {
     delete_stored_link_key_cp cp;
     struct hci_request rq;
 
@@ -2617,10 +2623,10 @@ int hci_delete_stored_link_key(int dd, bdaddr_t * bdaddr, uint8_t all, int to) {
     cp.delete_all = all;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_DELETE_STORED_LINK_KEY;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_DELETE_STORED_LINK_KEY;
     rq.cparam = &cp;
-    rq.clen   = DELETE_STORED_LINK_KEY_CP_SIZE;
+    rq.clen = DELETE_STORED_LINK_KEY_CP_SIZE;
 
     return hci_send_req(dd, &rq, to);
 }
@@ -2640,13 +2646,13 @@ int hci_authenticate_link(int dd, uint16_t handle, int to) {
 
     cp.handle = handle;
 
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_AUTH_REQUESTED;
-    rq.event  = EVT_AUTH_COMPLETE;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_AUTH_REQUESTED;
+    rq.event = EVT_AUTH_COMPLETE;
     rq.cparam = &cp;
-    rq.clen   = AUTH_REQUESTED_CP_SIZE;
+    rq.clen = AUTH_REQUESTED_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_AUTH_COMPLETE_SIZE;
+    rq.rlen = EVT_AUTH_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2673,16 +2679,16 @@ int hci_encrypt_link(int dd, uint16_t handle, uint8_t encrypt, int to) {
     evt_encrypt_change rp;
     struct hci_request rq;
 
-    cp.handle  = handle;
+    cp.handle = handle;
     cp.encrypt = encrypt;
 
-    rq.ogf     = OGF_LINK_CTL;
-    rq.ocf     = OCF_SET_CONN_ENCRYPT;
-    rq.event   = EVT_ENCRYPT_CHANGE;
-    rq.cparam  = &cp;
-    rq.clen    = SET_CONN_ENCRYPT_CP_SIZE;
-    rq.rparam  = &rp;
-    rq.rlen    = EVT_ENCRYPT_CHANGE_SIZE;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_SET_CONN_ENCRYPT;
+    rq.event = EVT_ENCRYPT_CHANGE;
+    rq.cparam = &cp;
+    rq.clen = SET_CONN_ENCRYPT_CP_SIZE;
+    rq.rparam = &rp;
+    rq.rlen = EVT_ENCRYPT_CHANGE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2710,13 +2716,13 @@ int hci_change_link_key(int dd, uint16_t handle, int to) {
 
     cp.handle = handle;
 
-    rq.ogf    = OGF_LINK_CTL;
-    rq.ocf    = OCF_CHANGE_CONN_LINK_KEY;
-    rq.event  = EVT_CHANGE_CONN_LINK_KEY_COMPLETE;
+    rq.ogf = OGF_LINK_CTL;
+    rq.ocf = OCF_CHANGE_CONN_LINK_KEY;
+    rq.event = EVT_CHANGE_CONN_LINK_KEY_COMPLETE;
     rq.cparam = &cp;
-    rq.clen   = CHANGE_CONN_LINK_KEY_CP_SIZE;
+    rq.clen = CHANGE_CONN_LINK_KEY_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_CHANGE_CONN_LINK_KEY_COMPLETE_SIZE;
+    rq.rlen = EVT_CHANGE_CONN_LINK_KEY_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2738,20 +2744,20 @@ int hci_change_link_key(int dd, uint16_t handle, int to) {
  * @param to
  * @return
  */
-int hci_switch_role(int dd, bdaddr_t * bdaddr, uint8_t role, int to) {
+int hci_switch_role(int dd, bdaddr_t *bdaddr, uint8_t role, int to) {
     switch_role_cp cp;
     evt_role_change rp;
     struct hci_request rq;
 
     bacpy(&cp.bdaddr, bdaddr);
-    cp.role   = role;
-    rq.ogf    = OGF_LINK_POLICY;
-    rq.ocf    = OCF_SWITCH_ROLE;
+    cp.role = role;
+    rq.ogf = OGF_LINK_POLICY;
+    rq.ocf = OCF_SWITCH_ROLE;
     rq.cparam = &cp;
-    rq.clen   = SWITCH_ROLE_CP_SIZE;
+    rq.clen = SWITCH_ROLE_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_ROLE_CHANGE_SIZE;
-    rq.event  = EVT_ROLE_CHANGE;
+    rq.rlen = EVT_ROLE_CHANGE_SIZE;
+    rq.event = EVT_ROLE_CHANGE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2780,19 +2786,19 @@ int hci_park_mode(int dd, uint16_t handle, uint16_t max_interval,
     evt_mode_change rp;
     struct hci_request rq;
 
-    memset(&cp, 0, sizeof (cp));
-    cp.handle       = handle;
+    memset(&cp, 0, sizeof(cp));
+    cp.handle = handle;
     cp.max_interval = max_interval;
     cp.min_interval = min_interval;
 
-    memset(&rq, 0, sizeof (rq));
-    rq.ogf    = OGF_LINK_POLICY;
-    rq.ocf    = OCF_PARK_MODE;
-    rq.event  = EVT_MODE_CHANGE;
+    memset(&rq, 0, sizeof(rq));
+    rq.ogf = OGF_LINK_POLICY;
+    rq.ocf = OCF_PARK_MODE;
+    rq.event = EVT_MODE_CHANGE;
     rq.cparam = &cp;
-    rq.clen   = PARK_MODE_CP_SIZE;
+    rq.clen = PARK_MODE_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_MODE_CHANGE_SIZE;
+    rq.rlen = EVT_MODE_CHANGE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2818,17 +2824,17 @@ int hci_exit_park_mode(int dd, uint16_t handle, int to) {
     evt_mode_change rp;
     struct hci_request rq;
 
-    memset(&cp, 0, sizeof (cp));
+    memset(&cp, 0, sizeof(cp));
     cp.handle = handle;
 
-    memset (&rq, 0, sizeof (rq));
-    rq.ogf    = OGF_LINK_POLICY;
-    rq.ocf    = OCF_EXIT_PARK_MODE;
-    rq.event  = EVT_MODE_CHANGE;
+    memset(&rq, 0, sizeof(rq));
+    rq.ogf = OGF_LINK_POLICY;
+    rq.ocf = OCF_EXIT_PARK_MODE;
+    rq.event = EVT_MODE_CHANGE;
     rq.cparam = &cp;
-    rq.clen   = EXIT_PARK_MODE_CP_SIZE;
+    rq.clen = EXIT_PARK_MODE_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_MODE_CHANGE_SIZE;
+    rq.rlen = EVT_MODE_CHANGE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2849,15 +2855,15 @@ int hci_exit_park_mode(int dd, uint16_t handle, int to) {
  * @param to
  * @return
  */
-int hci_read_inquiry_scan_type(int dd, uint8_t * type, int to) {
+int hci_read_inquiry_scan_type(int dd, uint8_t *type, int to) {
     read_inquiry_scan_type_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_INQUIRY_SCAN_TYPE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_INQUIRY_SCAN_TYPE;
     rq.rparam = &rp;
-    rq.rlen   = READ_INQUIRY_SCAN_TYPE_RP_SIZE;
+    rq.rlen = READ_INQUIRY_SCAN_TYPE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2888,12 +2894,12 @@ int hci_write_inquiry_scan_type(int dd, uint8_t type, int to) {
     cp.type = type;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_INQUIRY_SCAN_TYPE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_INQUIRY_SCAN_TYPE;
     rq.cparam = &cp;
-    rq.clen   = WRITE_INQUIRY_SCAN_TYPE_CP_SIZE;
+    rq.clen = WRITE_INQUIRY_SCAN_TYPE_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = WRITE_INQUIRY_SCAN_TYPE_RP_SIZE;
+    rq.rlen = WRITE_INQUIRY_SCAN_TYPE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2914,15 +2920,15 @@ int hci_write_inquiry_scan_type(int dd, uint8_t type, int to) {
  * @param to
  * @return
  */
-int hci_read_inquiry_mode(int dd, uint8_t * mode, int to) {
+int hci_read_inquiry_mode(int dd, uint8_t *mode, int to) {
     read_inquiry_mode_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_INQUIRY_MODE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_INQUIRY_MODE;
     rq.rparam = &rp;
-    rq.rlen   = READ_INQUIRY_MODE_RP_SIZE;
+    rq.rlen = READ_INQUIRY_MODE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2953,12 +2959,12 @@ int hci_write_inquiry_mode(int dd, uint8_t mode, int to) {
     cp.mode = mode;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_INQUIRY_MODE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_INQUIRY_MODE;
     rq.cparam = &cp;
-    rq.clen   = WRITE_INQUIRY_MODE_CP_SIZE;
+    rq.clen = WRITE_INQUIRY_MODE_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = WRITE_INQUIRY_MODE_RP_SIZE;
+    rq.rlen = WRITE_INQUIRY_MODE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -2979,15 +2985,15 @@ int hci_write_inquiry_mode(int dd, uint8_t mode, int to) {
  * @param to
  * @return
  */
-int hci_read_afh_mode(int dd, uint8_t * mode, int to) {
+int hci_read_afh_mode(int dd, uint8_t *mode, int to) {
     read_afh_mode_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_AFH_MODE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_AFH_MODE;
     rq.rparam = &rp;
-    rq.rlen   = READ_AFH_MODE_RP_SIZE;
+    rq.rlen = READ_AFH_MODE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3018,12 +3024,12 @@ int hci_write_afh_mode(int dd, uint8_t mode, int to) {
     cp.mode = mode;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_AFH_MODE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_AFH_MODE;
     rq.cparam = &cp;
-    rq.clen   = WRITE_AFH_MODE_CP_SIZE;
+    rq.clen = WRITE_AFH_MODE_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = WRITE_AFH_MODE_RP_SIZE;
+    rq.rlen = WRITE_AFH_MODE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3045,15 +3051,15 @@ int hci_write_afh_mode(int dd, uint8_t mode, int to) {
  * @param to
  * @return
  */
-int hci_read_ext_inquiry_response(int dd, uint8_t * fec, uint8_t * data, int to) {
+int hci_read_ext_inquiry_response(int dd, uint8_t *fec, uint8_t *data, int to) {
     read_ext_inquiry_response_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_EXT_INQUIRY_RESPONSE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_EXT_INQUIRY_RESPONSE;
     rq.rparam = &rp;
-    rq.rlen   = READ_EXT_INQUIRY_RESPONSE_RP_SIZE;
+    rq.rlen = READ_EXT_INQUIRY_RESPONSE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3078,7 +3084,7 @@ int hci_read_ext_inquiry_response(int dd, uint8_t * fec, uint8_t * data, int to)
  * @param to
  * @return
  */
-int hci_write_ext_inquiry_response(int dd, uint8_t fec, uint8_t * data, int to) {
+int hci_write_ext_inquiry_response(int dd, uint8_t fec, uint8_t *data, int to) {
     write_ext_inquiry_response_cp cp;
     write_ext_inquiry_response_rp rp;
     struct hci_request rq;
@@ -3088,12 +3094,12 @@ int hci_write_ext_inquiry_response(int dd, uint8_t fec, uint8_t * data, int to) 
     memcpy(cp.data, data, HCI_MAX_EIR_LENGTH);
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_EXT_INQUIRY_RESPONSE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_EXT_INQUIRY_RESPONSE;
     rq.cparam = &cp;
-    rq.clen   = WRITE_EXT_INQUIRY_RESPONSE_CP_SIZE;
+    rq.clen = WRITE_EXT_INQUIRY_RESPONSE_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = WRITE_EXT_INQUIRY_RESPONSE_RP_SIZE;
+    rq.rlen = WRITE_EXT_INQUIRY_RESPONSE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3114,15 +3120,15 @@ int hci_write_ext_inquiry_response(int dd, uint8_t fec, uint8_t * data, int to) 
  * @param to
  * @return
  */
-int hci_read_simple_pairing_mode(int dd, uint8_t * mode, int to) {
+int hci_read_simple_pairing_mode(int dd, uint8_t *mode, int to) {
     read_simple_pairing_mode_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_SIMPLE_PAIRING_MODE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_SIMPLE_PAIRING_MODE;
     rq.rparam = &rp;
-    rq.rlen   = READ_SIMPLE_PAIRING_MODE_RP_SIZE;
+    rq.rlen = READ_SIMPLE_PAIRING_MODE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3153,12 +3159,12 @@ int hci_write_simple_pairing_mode(int dd, uint8_t mode, int to) {
     cp.mode = mode;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_SIMPLE_PAIRING_MODE;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_SIMPLE_PAIRING_MODE;
     rq.cparam = &cp;
-    rq.clen   = WRITE_SIMPLE_PAIRING_MODE_CP_SIZE;
+    rq.clen = WRITE_SIMPLE_PAIRING_MODE_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = WRITE_SIMPLE_PAIRING_MODE_RP_SIZE;
+    rq.rlen = WRITE_SIMPLE_PAIRING_MODE_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3180,15 +3186,15 @@ int hci_write_simple_pairing_mode(int dd, uint8_t mode, int to) {
  * @param to
  * @return
  */
-int hci_read_local_oob_data(int dd, uint8_t * hash, uint8_t * randomizer, int to) {
+int hci_read_local_oob_data(int dd, uint8_t *hash, uint8_t *randomizer, int to) {
     read_local_oob_data_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_LOCAL_OOB_DATA;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_LOCAL_OOB_DATA;
     rq.rparam = &rp;
-    rq.rlen   = READ_LOCAL_OOB_DATA_RP_SIZE;
+    rq.rlen = READ_LOCAL_OOB_DATA_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3211,15 +3217,15 @@ int hci_read_local_oob_data(int dd, uint8_t * hash, uint8_t * randomizer, int to
  * @param to
  * @return
  */
-int hci_read_inq_response_tx_power_level(int dd, int8_t * level, int to) {
+int hci_read_inq_response_tx_power_level(int dd, int8_t *level, int to) {
     read_inq_response_tx_power_level_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_INQ_RESPONSE_TX_POWER_LEVEL;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_INQ_RESPONSE_TX_POWER_LEVEL;
     rq.rparam = &rp;
-    rq.rlen   = READ_INQ_RESPONSE_TX_POWER_LEVEL_RP_SIZE;
+    rq.rlen = READ_INQ_RESPONSE_TX_POWER_LEVEL_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3241,7 +3247,7 @@ int hci_read_inq_response_tx_power_level(int dd, int8_t * level, int to) {
  * @param to
  * @return
  */
-int hci_read_inquiry_transmit_power_level(int dd, int8_t * level, int to) {
+int hci_read_inquiry_transmit_power_level(int dd, int8_t *level, int to) {
     return hci_read_inq_response_tx_power_level(dd, level, to);
 }
 
@@ -3262,12 +3268,12 @@ int hci_write_inquiry_transmit_power_level(int dd, int8_t level, int to) {
     cp.level = level;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_INQUIRY_TRANSMIT_POWER_LEVEL;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_INQUIRY_TRANSMIT_POWER_LEVEL;
     rq.cparam = &cp;
-    rq.clen   = WRITE_INQUIRY_TRANSMIT_POWER_LEVEL_CP_SIZE;
+    rq.clen = WRITE_INQUIRY_TRANSMIT_POWER_LEVEL_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = WRITE_INQUIRY_TRANSMIT_POWER_LEVEL_RP_SIZE;
+    rq.rlen = WRITE_INQUIRY_TRANSMIT_POWER_LEVEL_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3291,22 +3297,22 @@ int hci_write_inquiry_transmit_power_level(int dd, int8_t level, int to) {
  * @return
  */
 int hci_read_transmit_power_level(int dd, uint16_t handle, uint8_t type,
-                                  int8_t * level, int to) {
+                                  int8_t *level, int to) {
     read_transmit_power_level_cp cp;
     read_transmit_power_level_rp rp;
     struct hci_request rq;
 
     memset(&cp, 0, sizeof(cp));
     cp.handle = handle;
-    cp.type   = type;
+    cp.type = type;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_TRANSMIT_POWER_LEVEL;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_TRANSMIT_POWER_LEVEL;
     rq.cparam = &cp;
-    rq.clen   = READ_TRANSMIT_POWER_LEVEL_CP_SIZE;
+    rq.clen = READ_TRANSMIT_POWER_LEVEL_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = READ_TRANSMIT_POWER_LEVEL_RP_SIZE;
+    rq.rlen = READ_TRANSMIT_POWER_LEVEL_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3329,17 +3335,17 @@ int hci_read_transmit_power_level(int dd, uint16_t handle, uint8_t type,
  * @param to
  * @return
  */
-int hci_read_link_policy(int dd, uint16_t handle, uint16_t * policy, int to) {
+int hci_read_link_policy(int dd, uint16_t handle, uint16_t *policy, int to) {
     read_link_policy_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_POLICY;
-    rq.ocf    = OCF_READ_LINK_POLICY;
+    rq.ogf = OGF_LINK_POLICY;
+    rq.ocf = OCF_READ_LINK_POLICY;
     rq.cparam = &handle;
-    rq.clen   = 2;
+    rq.clen = 2;
     rq.rparam = &rp;
-    rq.rlen   = READ_LINK_POLICY_RP_SIZE;
+    rq.rlen = READ_LINK_POLICY_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3372,12 +3378,12 @@ int hci_write_link_policy(int dd, uint16_t handle, uint16_t policy, int to) {
     cp.policy = policy;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LINK_POLICY;
-    rq.ocf    = OCF_WRITE_LINK_POLICY;
+    rq.ogf = OGF_LINK_POLICY;
+    rq.ocf = OCF_WRITE_LINK_POLICY;
     rq.cparam = &cp;
-    rq.clen   = WRITE_LINK_POLICY_CP_SIZE;
+    rq.clen = WRITE_LINK_POLICY_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = WRITE_LINK_POLICY_RP_SIZE;
+    rq.rlen = WRITE_LINK_POLICY_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3400,17 +3406,17 @@ int hci_write_link_policy(int dd, uint16_t handle, uint16_t policy, int to) {
  * @return
  */
 int hci_read_link_supervision_timeout(int dd, uint16_t handle,
-                                      uint16_t * timeout, int to) {
+                                      uint16_t *timeout, int to) {
     read_link_supervision_timeout_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_READ_LINK_SUPERVISION_TIMEOUT;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_READ_LINK_SUPERVISION_TIMEOUT;
     rq.cparam = &handle;
-    rq.clen   = 2;
+    rq.clen = 2;
     rq.rparam = &rp;
-    rq.rlen   = READ_LINK_SUPERVISION_TIMEOUT_RP_SIZE;
+    rq.rlen = READ_LINK_SUPERVISION_TIMEOUT_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3440,16 +3446,16 @@ int hci_write_link_supervision_timeout(int dd, uint16_t handle,
     struct hci_request rq;
 
     memset(&cp, 0, sizeof(cp));
-    cp.handle  = handle;
+    cp.handle = handle;
     cp.timeout = timeout;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_WRITE_LINK_SUPERVISION_TIMEOUT;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_WRITE_LINK_SUPERVISION_TIMEOUT;
     rq.cparam = &cp;
-    rq.clen   = WRITE_LINK_SUPERVISION_TIMEOUT_CP_SIZE;
+    rq.clen = WRITE_LINK_SUPERVISION_TIMEOUT_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = WRITE_LINK_SUPERVISION_TIMEOUT_RP_SIZE;
+    rq.rlen = WRITE_LINK_SUPERVISION_TIMEOUT_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3470,7 +3476,7 @@ int hci_write_link_supervision_timeout(int dd, uint16_t handle,
  * @param to
  * @return
  */
-int hci_set_afh_classification(int dd, uint8_t * map, int to) {
+int hci_set_afh_classification(int dd, uint8_t *map, int to) {
     set_afh_classification_cp cp;
     set_afh_classification_rp rp;
     struct hci_request rq;
@@ -3479,12 +3485,12 @@ int hci_set_afh_classification(int dd, uint8_t * map, int to) {
     memcpy(cp.map, map, 10);
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_HOST_CTL;
-    rq.ocf    = OCF_SET_AFH_CLASSIFICATION;
+    rq.ogf = OGF_HOST_CTL;
+    rq.ocf = OCF_SET_AFH_CLASSIFICATION;
     rq.cparam = &cp;
-    rq.clen   = SET_AFH_CLASSIFICATION_CP_SIZE;
+    rq.clen = SET_AFH_CLASSIFICATION_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = SET_AFH_CLASSIFICATION_RP_SIZE;
+    rq.rlen = SET_AFH_CLASSIFICATION_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3506,18 +3512,18 @@ int hci_set_afh_classification(int dd, uint8_t * map, int to) {
  * @param to
  * @return
  */
-int hci_read_link_quality(int dd, uint16_t handle, uint8_t * link_quality,
+int hci_read_link_quality(int dd, uint16_t handle, uint8_t *link_quality,
                           int to) {
     read_link_quality_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_STATUS_PARAM;
-    rq.ocf    = OCF_READ_LINK_QUALITY;
+    rq.ogf = OGF_STATUS_PARAM;
+    rq.ocf = OCF_READ_LINK_QUALITY;
     rq.cparam = &handle;
-    rq.clen   = 2;
+    rq.clen = 2;
     rq.rparam = &rp;
-    rq.rlen   = READ_LINK_QUALITY_RP_SIZE;
+    rq.rlen = READ_LINK_QUALITY_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3540,22 +3546,25 @@ int hci_read_link_quality(int dd, uint16_t handle, uint8_t * link_quality,
  * @param to
  * @return
  */
-int hci_read_rssi(int dd, uint16_t handle, int8_t * rssi, int to) {
+int hci_read_rssi(int dd, uint16_t handle, int8_t *rssi, int to) {
     read_rssi_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_STATUS_PARAM;
-    rq.ocf    = OCF_READ_RSSI;
+    rq.ogf = OGF_STATUS_PARAM;
+    rq.ocf = OCF_READ_RSSI;
     rq.cparam = &handle;
-    rq.clen   = 2;
+    rq.clen = 2;
     rq.rparam = &rp;
-    rq.rlen   = READ_RSSI_RP_SIZE;
+    rq.rlen = READ_RSSI_RP_SIZE;
 
-    if (hci_send_req(dd, &rq, to) < 0)
+    if (hci_send_req(dd, &rq, to) < 0) {
+        printf("hci_send_req failed\n");
         return -1;
+    }
 
     if (rp.status) {
+        printf("rp.status failed\n");
         errno = EIO;
         return -1;
     }
@@ -3574,18 +3583,18 @@ int hci_read_rssi(int dd, uint16_t handle, int8_t * rssi, int to) {
  * @param to
  * @return
  */
-int hci_read_afh_map(int dd, uint16_t handle, uint8_t * mode, uint8_t * map,
+int hci_read_afh_map(int dd, uint16_t handle, uint8_t *mode, uint8_t *map,
                      int to) {
     read_afh_map_rp rp;
     struct hci_request rq;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_STATUS_PARAM;
-    rq.ocf    = OCF_READ_AFH_MAP;
+    rq.ogf = OGF_STATUS_PARAM;
+    rq.ocf = OCF_READ_AFH_MAP;
     rq.cparam = &handle;
-    rq.clen   = 2;
+    rq.clen = 2;
     rq.rparam = &rp;
-    rq.rlen   = READ_AFH_MAP_RP_SIZE;
+    rq.rlen = READ_AFH_MAP_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3611,23 +3620,23 @@ int hci_read_afh_map(int dd, uint16_t handle, uint8_t * mode, uint8_t * map,
  * @param to
  * @return
  */
-int hci_read_clock(int dd, uint16_t handle, uint8_t which, uint32_t * clock,
-                   uint16_t * accuracy, int to) {
+int hci_read_clock(int dd, uint16_t handle, uint8_t which, uint32_t *clock,
+                   uint16_t *accuracy, int to) {
     read_clock_cp cp;
     read_clock_rp rp;
     struct hci_request rq;
 
     memset(&cp, 0, sizeof(cp));
-    cp.handle      = handle;
+    cp.handle = handle;
     cp.which_clock = which;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_STATUS_PARAM;
-    rq.ocf    = OCF_READ_CLOCK;
+    rq.ogf = OGF_STATUS_PARAM;
+    rq.ocf = OCF_READ_CLOCK;
     rq.cparam = &cp;
-    rq.clen   = READ_CLOCK_CP_SIZE;
+    rq.clen = READ_CLOCK_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = READ_CLOCK_RP_SIZE;
+    rq.rlen = READ_CLOCK_RP_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;
@@ -3637,7 +3646,7 @@ int hci_read_clock(int dd, uint16_t handle, uint8_t which, uint32_t * clock,
         return -1;
     }
 
-    *clock    = rp.clock;
+    *clock = rp.clock;
     *accuracy = rp.accuracy;
     return 0;
 }
@@ -3785,7 +3794,7 @@ int hci_le_create_conn(int dd, uint16_t interval, uint16_t window,
                        uint16_t min_interval, uint16_t max_interval,
                        uint16_t latency, uint16_t supervision_timeout,
                        uint16_t min_ce_length, uint16_t max_ce_length,
-                       uint16_t * handle, int to) {
+                       uint16_t *handle, int to) {
     struct hci_request rq;
     le_create_connection_cp create_conn_cp;
     evt_le_connection_complete conn_complete_rp;
@@ -3884,7 +3893,7 @@ int hci_le_conn_update(int dd, uint16_t handle, uint16_t min_interval,
  * @param to
  * @return
  */
-int hci_le_read_remote_features(int dd, uint16_t handle, uint8_t * features, int to) {
+int hci_le_read_remote_features(int dd, uint16_t handle, uint8_t *features, int to) {
     evt_le_read_remote_used_features_complete rp;
     le_read_remote_used_features_cp cp;
     struct hci_request rq;
@@ -3893,13 +3902,13 @@ int hci_le_read_remote_features(int dd, uint16_t handle, uint8_t * features, int
     cp.handle = handle;
 
     memset(&rq, 0, sizeof(rq));
-    rq.ogf    = OGF_LE_CTL;
-    rq.ocf    = OCF_LE_READ_REMOTE_USED_FEATURES;
-    rq.event  = EVT_LE_READ_REMOTE_USED_FEATURES_COMPLETE;
+    rq.ogf = OGF_LE_CTL;
+    rq.ocf = OCF_LE_READ_REMOTE_USED_FEATURES;
+    rq.event = EVT_LE_READ_REMOTE_USED_FEATURES_COMPLETE;
     rq.cparam = &cp;
-    rq.clen   = LE_READ_REMOTE_USED_FEATURES_CP_SIZE;
+    rq.clen = LE_READ_REMOTE_USED_FEATURES_CP_SIZE;
     rq.rparam = &rp;
-    rq.rlen   = EVT_LE_READ_REMOTE_USED_FEATURES_COMPLETE_SIZE;
+    rq.rlen = EVT_LE_READ_REMOTE_USED_FEATURES_COMPLETE_SIZE;
 
     if (hci_send_req(dd, &rq, to) < 0)
         return -1;

@@ -111,6 +111,12 @@ struct client {
     struct bt_gatt_client *gatt;
     /// session id
     unsigned int reliable_session_id;
+    /// hci_socket
+    int hci_socket;
+    /// hci handle
+    uint16_t hci_handle;
+    /// battery handle
+    uint16_t battery_handle;
 };
 
 /**
@@ -404,6 +410,9 @@ static void register_notify_cb(uint16_t att_ecode, void *user_data);
 static void notify_cb(uint16_t value_handle, const uint8_t *value,
                       uint16_t length, __attribute__((unused)) void *user_data);
 
+static void notify_battery_cb(uint16_t value_handle, const uint8_t *value,
+                              uint16_t length, __attribute__((unused)) void *user_data);
+
 static void subscribe_chrc(struct gatt_db_attribute *attr, void *user_data) {
     struct client *cli = user_data;
     uint16_t handle, value_handle;
@@ -416,11 +425,26 @@ static void subscribe_chrc(struct gatt_db_attribute *attr, void *user_data) {
                                          &uuid))
         return;
     if (uuid.value.u32 == 0xe1ff0000) {
+        daemon_log(LOG_INFO, COLOR_GREEN "Atorch DT24 characteristic found handle:0x%x prop:0x%x" COLOR_OFF,
+                   value_handle, properties);
         unsigned int id = bt_gatt_client_register_notify(cli->gatt, value_handle,
                                                          register_notify_cb,
                                                          notify_cb, NULL, NULL);
         if (!id) {
             daemon_log(LOG_ERR, "Failed to register notify handler");
+            return;
+        }
+
+    }
+    if (uuid.value.u32 == 0x192a0000) {
+        cli->battery_handle = value_handle;
+        daemon_log(LOG_INFO, COLOR_GREEN "Battery characteristic found handle:0x%x prop:0x%x" COLOR_OFF, value_handle,
+                   properties);
+        unsigned int id = bt_gatt_client_register_notify(cli->gatt, value_handle,
+                                                         register_notify_cb,
+                                                         notify_battery_cb, NULL, NULL);
+        if (!id) {
+            daemon_log(LOG_ERR, "Failed to register battery notify handler");
             return;
         }
 
@@ -724,6 +748,21 @@ static void cmd_read_multiple(struct client *cli, char *cmd_str) {
  */
 static void read_value_usage(void) {
     printf("Usage: read-value <value_handle>\n");
+}
+
+static void read_battery_cb(bool success, uint8_t att_ecode, const uint8_t *value,
+                            uint16_t length, __attribute__((unused)) void *user_data) {
+
+    if (!success) {
+        PRLOG("\nRead request failed: %s (0x%02x)",
+              ecode_to_string(att_ecode), att_ecode);
+        return;
+    }
+    if (length == 1) {
+        daemon_log(LOG_INFO, "Battery level: %d%%", value[0]);
+    } else {
+        hex_dump(value, length);
+    }
 }
 
 /**
@@ -1367,6 +1406,12 @@ static int32_t dl24_get_32bit(const uint8_t *data, size_t i) {
 //    return crc ^ 0x44;
 //}
 
+static void notify_battery_cb(uint16_t value_handle, const uint8_t *value,
+                              uint16_t length, __attribute__((unused)) void *user_data) {
+    daemon_log(LOG_INFO, "Battery notify: 0x%04x - (%u bytes)", value_handle, length);
+    hex_dump(value, length);
+}
+
 /**
  * notify call back
  *
@@ -1380,26 +1425,27 @@ static void notify_cb(uint16_t value_handle, const uint8_t *value,
     if (length == 36 && value[0] == 0xff && value[1] == 0x55) {
         double voltage = dl24_get_24bit(value, 4) * 0.1f;
         double current = dl24_get_24bit(value, 7) * 0.001f;
-	double temp = dl24_get_16bit(value, 24);
-	double cap_ah = dl24_get_24bit(value, 10) * 0.01f;
+        double temp = dl24_get_16bit(value, 24);
+        double cap_ah = dl24_get_24bit(value, 10) * 0.01f;
         double cap_wh = dl24_get_32bit(value, 13) * 10.0f;
 
         static double p_voltage = NAN;
         static double p_current = NAN;
-	static double p_temp = NAN;
-	static double p_cap_ah = NAN;
+        static double p_temp = NAN;
+        static double p_cap_ah = NAN;
         static double p_cap_wh = NAN;
 
         mosq_gather_data(current, voltage);
 
-	if (voltage != p_voltage || current != p_current || temp!=p_temp || cap_ah != p_cap_ah || cap_wh != p_cap_wh) {
-	    p_voltage = voltage;
+        if (voltage != p_voltage || current != p_current || temp != p_temp || cap_ah != p_cap_ah ||
+            cap_wh != p_cap_wh) {
+            p_voltage = voltage;
             p_current = current;
             p_temp = temp;
             p_cap_ah = cap_ah;
             p_cap_wh = cap_wh;
             daemon_log(LOG_INFO, "%.2fV %.2fA %.0fC %.2fAh %.2fWh", voltage, current, temp, cap_ah, cap_wh);
-	}
+        }
     } else {
         daemon_log(LOG_ERR, "Handle Value Not/Ind: 0x%04x - (%u bytes)", value_handle, length);
         hex_dump(value, length);
@@ -1416,12 +1462,12 @@ static void notify_cb(uint16_t value_handle, const uint8_t *value,
  */
 static void register_notify_cb(uint16_t att_ecode, __attribute__((unused)) void *user_data) {
     if (att_ecode) {
-        PRLOG("Failed to register notify handler "
-              "- error code: 0x%02x", att_ecode);
+        PRLOG(COLOR_RED "Failed to register notify handler "
+                        "- error code: 0x%02x" COLOR_OFF, att_ecode);
         return;
     }
 
-    PRLOG("Registered notify handler!");
+    PRLOG(COLOR_GREEN "Registered notify handler!" COLOR_OFF);
 }
 
 /**
@@ -1556,6 +1602,54 @@ static void cmd_set_security(struct client *cli, char *cmd_str) {
         daemon_log(LOG_ERR, "Could not set sec level");
     else
         daemon_log(LOG_INFO, "Setting security level %d success", level);
+}
+
+static void cmd_battery(struct client *cli, __attribute__((unused)) char *cmd_str) {
+    if (!bt_gatt_client_is_ready(cli->gatt)) {
+        daemon_log(LOG_INFO, "GATT client not initialized");
+        return;
+    }
+    if (!cli->battery_handle) {
+        daemon_log(LOG_INFO, "Battery handle not initialized");
+        return;
+    }
+
+    char *argvbuf[1];
+    char **argv = argvbuf;
+    int argc = 0;
+    char *endptr = NULL;
+    int interval = 0;
+
+    if (!parse_args(cmd_str, 1, argv, &argc)) {
+        daemon_log(LOG_ERR, "Too many arguments");
+        return;
+    }
+
+    if (argc == 1) {
+        interval = strtol(argv[0], &endptr, 0);
+        if (!endptr || *endptr != '\0' || interval < 500 || interval > 3000) {
+            daemon_log(LOG_ERR, "Invalid interval: %s", argv[0]);
+            return;
+        }
+    }
+
+    printf("%s\n", cmd_str);
+    if () {
+        int batt_timer_fd=mainloop_add_timeout(1000, read_battery, cli);
+    }
+    if (!bt_gatt_client_read_value(cli->gatt, cli->battery_handle, read_battery_cb,
+                                   NULL, NULL))
+        daemon_log(LOG_ERR, "Failed to initiate read value procedure");
+
+}
+
+static void cmd_rssi(struct client *cli, __attribute__((unused)) char *cmd_str) {
+    int8_t rssi = 0;
+    if (!hci_read_rssi(cli->hci_socket, cli->hci_handle, &rssi, 1000)) {
+        daemon_log(LOG_INFO, COLOR_GREEN "RSSI: %d" COLOR_OFF, rssi);
+    } else {
+        daemon_log(LOG_ERR, COLOR_RED "Could not read RSSI" COLOR_OFF);
+    }
 }
 
 /**
@@ -1718,6 +1812,12 @@ static struct {
          "set-sign-key",      cmd_set_sign_key,
                                                  "\tSet signing key for signed write command"
         },
+        {
+         "rssi",              cmd_rssi,
+                                                 "\tGet RSSI value"
+        },
+        {"batt",              cmd_battery,       "\tGet battery value"},
+
         {"quit",              cmd_quit,          "\tQuit"},
         {}
 };
@@ -1887,6 +1987,23 @@ static int l2cap_le_att_connect(bdaddr_t *src, bdaddr_t *dst, uint8_t dst_type,
     return sock;
 }
 
+int get_l2cap_handle(int fd, uint16_t *hciHandle) {
+    struct l2cap_conninfo l2capConnInfo = {0};
+    socklen_t l2capConnInfoLen = sizeof(l2capConnInfo);
+    int result = getsockopt(fd, SOL_L2CAP, L2CAP_CONNINFO, &l2capConnInfo,
+                            &l2capConnInfoLen);
+    if (result == -1) {
+        daemon_log(LOG_ERR, "getsockopt failed\n");
+        return -1;
+    }
+    if (hciHandle != NULL) {
+        *hciHandle = l2capConnInfo.hci_handle;
+    }
+
+    printf("l2capConnInfo.hci_handle: 0x%x\n", l2capConnInfo.hci_handle);
+    return 0;
+}
+
 /**
  * print usage
  */
@@ -1927,7 +2044,7 @@ static struct option main_options[] = {
  * @param argv	args value
  * @return EXIT_FAILURE or EXIT_SUCCESS
  */
-extern char * hostname;
+extern char *hostname;
 
 int main(int argc, char *argv[]) {
     int opt;
@@ -1946,8 +2063,8 @@ int main(int argc, char *argv[]) {
     while ((opt = getopt_long(argc, argv, "+hvs:m:t:d:i:cH:",
                               main_options, NULL)) != -1) {
         switch (opt) {
-	    case 'H':
-                hostname=optarg;
+            case 'H':
+                hostname = optarg;
                 break;
             case 'c':
                 disable_console = true;
@@ -2067,7 +2184,8 @@ int main(int argc, char *argv[]) {
             close(fd);
             return EXIT_FAILURE;
         }
-
+        cli->hci_socket = hci_open_dev(hci_get_route(NULL));
+        get_l2cap_handle(cli->fd, &cli->hci_handle);
         /* add input event from console */
         if (!disable_console) {
             if (mainloop_add_fd(fileno(stdin),
@@ -2092,11 +2210,12 @@ int main(int argc, char *argv[]) {
          * any further process is an epoll event processed in mainloop_run
          *
          */
-        if (mainloop_run() == EXIT_SUCCESS){
+        if (mainloop_run() == EXIT_SUCCESS) {
             daemon_log(LOG_INFO, "Main loop terminated with success");
             sleep(5);
             //break;
         }
+        hci_close_dev(cli->hci_socket);
     }
     daemon_log(LOG_INFO, "Shutting down...");
 
