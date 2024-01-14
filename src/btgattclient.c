@@ -66,6 +66,12 @@
 
 #define ATT_CID 4
 
+static bool disable_mqtt = false;
+static int batt_timer_fd = -1;
+static int batt_timer_interval = 0;
+static int rssi_timer_fd = -1;
+static int rssi_timer_interval = 0;
+
 #define PRLOGE(format, ...) \
     while(1) {     \
     if (disable_console) { \
@@ -1435,7 +1441,9 @@ static void notify_cb(uint16_t value_handle, const uint8_t *value,
         static double p_cap_ah = NAN;
         static double p_cap_wh = NAN;
 
-        mosq_gather_data(current, voltage);
+        if (!disable_mqtt) {
+            mosq_gather_data(current, voltage);
+        }
 
         if (voltage != p_voltage || current != p_current || temp != p_temp || cap_ah != p_cap_ah ||
             cap_wh != p_cap_wh) {
@@ -1604,7 +1612,35 @@ static void cmd_set_security(struct client *cli, char *cmd_str) {
         daemon_log(LOG_INFO, "Setting security level %d success", level);
 }
 
-static void cmd_battery(struct client *cli, __attribute__((unused)) char *cmd_str) {
+static void read_rssi_timer_cb(int fd, void *user_data) {
+    struct client *cli = user_data;
+    int8_t rssi = 0;
+    if (!hci_read_rssi(cli->hci_socket, cli->hci_handle, &rssi, 1000)) {
+        daemon_log(LOG_INFO, COLOR_GREEN "RSSI: %d" COLOR_OFF, rssi);
+    } else {
+        daemon_log(LOG_ERR, COLOR_RED "Could not read RSSI" COLOR_OFF);
+    }
+    if (rssi_timer_interval) {
+        mainloop_modify_timeout(fd, rssi_timer_interval);
+    }
+}
+
+static void read_battery_timer_cb(int fd, void *user_data) {
+    struct client *cli = user_data;
+    if (!cli->battery_handle) {
+        daemon_log(LOG_INFO, "Battery handle not initialized");
+        return;
+    }
+    if (!bt_gatt_client_read_value(cli->gatt, cli->battery_handle, read_battery_cb,
+                                   NULL, NULL)) {
+        daemon_log(LOG_ERR, "Failed to initiate read value procedure");
+    }
+    if (batt_timer_interval) {
+        mainloop_modify_timeout(fd, batt_timer_interval);
+    }
+}
+
+static void cmd_battery(struct client *cli, char *cmd_str) {
     if (!bt_gatt_client_is_ready(cli->gatt)) {
         daemon_log(LOG_INFO, "GATT client not initialized");
         return;
@@ -1614,41 +1650,80 @@ static void cmd_battery(struct client *cli, __attribute__((unused)) char *cmd_st
         return;
     }
 
-    char *argvbuf[1];
+    char *argvbuf[2];
     char **argv = argvbuf;
     int argc = 0;
     char *endptr = NULL;
-    int interval = 0;
 
     if (!parse_args(cmd_str, 1, argv, &argc)) {
         daemon_log(LOG_ERR, "Too many arguments");
         return;
     }
-
     if (argc == 1) {
-        interval = strtol(argv[0], &endptr, 0);
-        if (!endptr || *endptr != '\0' || interval < 500 || interval > 3000) {
+        batt_timer_interval = (int) strtol(argv[0], &endptr, 0);
+        if (!endptr || *endptr != '\0' || batt_timer_interval < 500 || batt_timer_interval > 3000) {
             daemon_log(LOG_ERR, "Invalid interval: %s", argv[0]);
+            batt_timer_interval = 0;
             return;
+        }
+    } else {
+        batt_timer_interval = 0;
+    }
+
+    if (batt_timer_interval) {
+        if (batt_timer_fd != -1) {
+            mainloop_modify_timeout(batt_timer_fd, batt_timer_interval);
+        } else {
+            batt_timer_fd = mainloop_add_timeout(batt_timer_interval, read_battery_timer_cb, cli, NULL);
+        }
+
+    } else {
+        if (!bt_gatt_client_read_value(cli->gatt, cli->battery_handle, read_battery_cb,
+                                       NULL, NULL)) {
+            daemon_log(LOG_ERR, "Failed to initiate read value procedure");
         }
     }
 
-    printf("%s\n", cmd_str);
-    if () {
-        int batt_timer_fd=mainloop_add_timeout(1000, read_battery, cli);
-    }
-    if (!bt_gatt_client_read_value(cli->gatt, cli->battery_handle, read_battery_cb,
-                                   NULL, NULL))
-        daemon_log(LOG_ERR, "Failed to initiate read value procedure");
-
 }
 
-static void cmd_rssi(struct client *cli, __attribute__((unused)) char *cmd_str) {
-    int8_t rssi = 0;
-    if (!hci_read_rssi(cli->hci_socket, cli->hci_handle, &rssi, 1000)) {
-        daemon_log(LOG_INFO, COLOR_GREEN "RSSI: %d" COLOR_OFF, rssi);
+static void cmd_rssi(struct client *cli, char *cmd_str) {
+    if (!bt_gatt_client_is_ready(cli->gatt)) {
+        daemon_log(LOG_INFO, "GATT client not initialized");
+        return;
+    }
+    char *argvbuf[2];
+    char **argv = argvbuf;
+    int argc = 0;
+    char *endptr = NULL;
+
+    if (!parse_args(cmd_str, 1, argv, &argc)) {
+        daemon_log(LOG_ERR, "Too many arguments");
+        return;
+    }
+    if (argc == 1) {
+        rssi_timer_interval = (int) strtol(argv[0], &endptr, 0);
+        if (!endptr || *endptr != '\0' || rssi_timer_interval < 500 || rssi_timer_interval > 3000) {
+            daemon_log(LOG_ERR, "Invalid interval: %s", argv[0]);
+            rssi_timer_interval = 0;
+            return;
+        }
     } else {
-        daemon_log(LOG_ERR, COLOR_RED "Could not read RSSI" COLOR_OFF);
+        rssi_timer_interval = 0;
+    }
+
+    if (rssi_timer_interval) {
+        if (rssi_timer_fd != -1) {
+            mainloop_modify_timeout(rssi_timer_fd, rssi_timer_interval);
+        } else {
+            rssi_timer_fd = mainloop_add_timeout(rssi_timer_interval, read_rssi_timer_cb, cli, NULL);
+        }
+    } else {
+        int8_t rssi = 0;
+        if (!hci_read_rssi(cli->hci_socket, cli->hci_handle, &rssi, 1000)) {
+            daemon_log(LOG_INFO, COLOR_GREEN "RSSI: %d" COLOR_OFF, rssi);
+        } else {
+            daemon_log(LOG_ERR, COLOR_RED "Could not read RSSI" COLOR_OFF);
+        }
     }
 }
 
@@ -2060,9 +2135,13 @@ int main(int argc, char *argv[]) {
 
     daemon_log_upto(LOG_INFO);
 
-    while ((opt = getopt_long(argc, argv, "+hvs:m:t:d:i:cH:",
+    while ((opt = getopt_long(argc, argv, "+hvs:m:t:d:i:cH:D",
                               main_options, NULL)) != -1) {
         switch (opt) {
+            case 'D':
+                daemon_log(LOG_INFO, "Disable mqtt");
+                disable_mqtt = true;
+                break;
             case 'H':
                 hostname = optarg;
                 break;
@@ -2164,8 +2243,9 @@ int main(int argc, char *argv[]) {
         PRLOGE("Destination address required!");
         return EXIT_FAILURE;
     }
-
-    mosq_init("gatt");
+    if (!disable_mqtt) {
+        mosq_init("gatt");
+    }
     /* create the mainloop resources */
 
     while (!terminate) {
@@ -2212,14 +2292,27 @@ int main(int argc, char *argv[]) {
          */
         if (mainloop_run() == EXIT_SUCCESS) {
             daemon_log(LOG_INFO, "Main loop terminated with success");
-            sleep(5);
-            //break;
+            if (!terminate) {
+                sleep(5);
+            }
         }
         hci_close_dev(cli->hci_socket);
+        if (batt_timer_fd != -1) {
+            mainloop_remove_timeout(batt_timer_fd);
+            batt_timer_fd = -1;
+        }
+        if (rssi_timer_fd != -1) {
+            mainloop_remove_timeout(rssi_timer_fd);
+            rssi_timer_fd = -1;
+        }
     }
     daemon_log(LOG_INFO, "Shutting down...");
 
     client_destroy(cli);
-    mosq_destroy();
+
+    if (!disable_mqtt) {
+        mosq_destroy();
+    }
+
     return EXIT_SUCCESS;
 }
