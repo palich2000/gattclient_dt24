@@ -1467,7 +1467,8 @@ static void notify_cb(__attribute__((unused)) uint16_t value_handle, const uint8
             p_cap_ah = cap_ah;
             p_cap_wh = cap_wh;
             daemon_log(LOG_INFO, "%.2fV %.2fA %.0fC %.2fAh %.2fWh", voltage, current, temp, cap_ah, cap_wh);
-            }
+        }
+        buffer_size = 0;
     } if (buffer_size > 36) {
         daemon_log(LOG_WARNING, "Notify buffer overflow, resetting buffer");
         buffer_size = 0;
