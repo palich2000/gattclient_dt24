@@ -1412,7 +1412,7 @@ static int32_t dl24_get_32bit(const uint8_t *data, size_t i) {
 //    return crc ^ 0x44;
 //}
 
-static void notify_battery_cb(uint16_t value_handle, const uint8_t *value,
+static void notify_battery_cb(__attribute__((unused)) uint16_t value_handle, const uint8_t *value,
                               uint16_t length, __attribute__((unused)) void *user_data) {
     daemon_log(LOG_INFO, "Battery notify: 0x%04x - (%u bytes)", value_handle, length);
     hex_dump(value, length);
@@ -1426,14 +1426,28 @@ static void notify_battery_cb(uint16_t value_handle, const uint8_t *value,
  * @param length		length of vector value
  * @param user_data		not used
  */
-static void notify_cb(uint16_t value_handle, const uint8_t *value,
+static void notify_cb(__attribute__((unused)) uint16_t value_handle, const uint8_t *_value,
                       uint16_t length, __attribute__((unused)) void *user_data) {
-    if (length == 36 && value[0] == 0xff && value[1] == 0x55) {
-        double voltage = dl24_get_24bit(value, 4) * 0.1f;
-        double current = dl24_get_24bit(value, 7) * 0.001f;
-        double temp = dl24_get_16bit(value, 24);
-        double cap_ah = dl24_get_24bit(value, 10) * 0.01f;
-        double cap_wh = dl24_get_32bit(value, 13) * 10.0f;
+    static uint8_t * buffer = NULL;
+    static int buffer_size = 0;
+    if (!buffer) {
+        buffer = malloc(512);
+        if (!buffer) {
+            daemon_log(LOG_ERR, "Failed to allocate memory for notify buffer");
+            return;
+        }
+    }
+    // append data to buffer
+    if (buffer_size<36) {
+        memmove(&buffer[buffer_size], _value, length);
+        buffer_size += length;
+    }
+    if (buffer_size == 36 && buffer[0] == 0xff && buffer[1] == 0x55) {
+        double voltage = dl24_get_24bit(buffer, 4) * 0.1f;
+        double current = dl24_get_24bit(buffer, 7) * 0.001f;
+        double temp = dl24_get_16bit(buffer, 24);
+        double cap_ah = dl24_get_24bit(buffer, 10) * 0.01f;
+        double cap_wh = dl24_get_32bit(buffer, 13) * 10.0f;
 
         static double p_voltage = NAN;
         static double p_current = NAN;
@@ -1453,11 +1467,15 @@ static void notify_cb(uint16_t value_handle, const uint8_t *value,
             p_cap_ah = cap_ah;
             p_cap_wh = cap_wh;
             daemon_log(LOG_INFO, "%.2fV %.2fA %.0fC %.2fAh %.2fWh", voltage, current, temp, cap_ah, cap_wh);
-        }
-    } else {
-        daemon_log(LOG_ERR, "Handle Value Not/Ind: 0x%04x - (%u bytes)", value_handle, length);
-        hex_dump(value, length);
+            }
+    } if (buffer_size > 36) {
+        daemon_log(LOG_WARNING, "Notify buffer overflow, resetting buffer");
+        buffer_size = 0;
     }
+    // } else {
+    //     daemon_log(LOG_ERR, "Handle Value Not/Ind: 0x%04x - (%u bytes)", value_handle, length);
+    //     hex_dump(_value, length);
+    // }
 }
 // ff 55 01 02 00 01 0e 00 4d c8 00 09 3c 00 00 00 3e 00 00 34 00 00 00 00 00 17 00 06 05 08 3c 00 00 00 00 23
 // ff 55 01 02 00 01 07 00 0f 8f 00 04 80 00 00 00 1e 00 00 34 00 00 00 00 00 14 00 03 3b 05 3c 00 00 00 00 23

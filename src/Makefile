@@ -2,7 +2,7 @@
 MCP = yes
 #ZIGBEEGATE = yes
 
-CC ?= gcc
+CC = gcc
 
 CFLAGS += -g -std=c11 -MD -MP  -Wall -Werror -Wfatal-errors -Wextra  -g -I.
 
