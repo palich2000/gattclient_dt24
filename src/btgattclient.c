@@ -1467,8 +1467,6 @@ static void notify_cb(__attribute__((unused)) uint16_t value_handle, const uint8
             p_cap_ah = cap_ah;
             p_cap_wh = cap_wh;
             daemon_log(LOG_INFO, "%.2fV %.2fA %.0fC %.2fAh %.2fWh", voltage, current, temp, cap_ah, cap_wh);
-        } else {
-            daemon_log(LOG_DEBUG, "No change: %.2fV %.2fA %.0fC %.2fAh %.2fWh", voltage, current, temp, cap_ah, cap_wh);
         }
         buffer_size = 0;
     } if (buffer_size > 36) {
@@ -2311,10 +2309,11 @@ int main(int argc, char *argv[]) {
          * any further process is an epoll event processed in mainloop_run
          *
          */
+        bool sleep_before_reconnect = false;
         if (mainloop_run() == EXIT_SUCCESS) {
             daemon_log(LOG_INFO, "Main loop terminated with success");
             if (!terminate) {
-                sleep(5);
+                sleep_before_reconnect = true;
             }
         }
         hci_close_dev(cli->hci_socket);
@@ -2326,6 +2325,13 @@ int main(int argc, char *argv[]) {
             mainloop_remove_timeout(rssi_timer_fd);
             rssi_timer_fd = -1;
         }
+	if (sleep_before_reconnect) {
+           daemon_log(LOG_INFO, "Sleep 60 seconds before reconnect");
+           for (int i=0; i<60; i++) {
+               if (terminate) break;
+               sleep(1);
+	   }
+	}
     }
     daemon_log(LOG_INFO, "Shutting down...");
 
