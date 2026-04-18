@@ -2309,10 +2309,11 @@ int main(int argc, char *argv[]) {
          * any further process is an epoll event processed in mainloop_run
          *
          */
+        bool sleep_before_reconnect = false;
         if (mainloop_run() == EXIT_SUCCESS) {
             daemon_log(LOG_INFO, "Main loop terminated with success");
             if (!terminate) {
-                sleep(5);
+                sleep_before_reconnect = true;
             }
         }
         hci_close_dev(cli->hci_socket);
@@ -2324,6 +2325,13 @@ int main(int argc, char *argv[]) {
             mainloop_remove_timeout(rssi_timer_fd);
             rssi_timer_fd = -1;
         }
+	if (sleep_before_reconnect) {
+           daemon_log(LOG_INFO, "Sleep 60 seconds before reconnect");
+           for (int i=0; i<60; i++) {
+               if (terminate) break;
+               sleep(1);
+	   }
+	}
     }
     daemon_log(LOG_INFO, "Shutting down...");
 
