@@ -72,6 +72,15 @@ static int batt_timer_interval = 0;
 static int rssi_timer_fd = -1;
 static int rssi_timer_interval = 0;
 
+/* Atorch DT24 stops streaming notifications after a few minutes of idle.
+ * We keep it awake by periodically writing a no-op command frame to the
+ * same characteristic we receive notifications from (0xffe1, props 0x1c). */
+#define DT24_KEEPALIVE_INTERVAL_MS 3000
+static int keepalive_timer_fd = -1;
+static const uint8_t dt24_keepalive_payload[10] = {
+        0xb1, 0xb2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
 #define PRLOGE(format, ...) \
     while(1) {     \
     if (disable_console) { \
@@ -123,6 +132,8 @@ struct client {
     uint16_t hci_handle;
     /// battery handle
     uint16_t battery_handle;
+    /// DT24 notify/write char handle (0xffe1)
+    uint16_t keepalive_handle;
 };
 
 /**
@@ -419,6 +430,22 @@ static void notify_cb(uint16_t value_handle, const uint8_t *value,
 static void notify_battery_cb(uint16_t value_handle, const uint8_t *value,
                               uint16_t length, __attribute__((unused)) void *user_data);
 
+static void keepalive_timer_cb(__attribute__((unused)) int id, void *user_data) {
+    struct client *cli = user_data;
+
+    if (!cli || !cli->gatt || !cli->keepalive_handle)
+        return;
+    if (!bt_gatt_client_is_ready(cli->gatt))
+        return;
+
+    if (!bt_gatt_client_write_without_response(cli->gatt, cli->keepalive_handle,
+                                               false,
+                                               dt24_keepalive_payload,
+                                               sizeof(dt24_keepalive_payload))) {
+        daemon_log(LOG_WARNING, "DT24 keep-alive write failed");
+    }
+}
+
 static void subscribe_chrc(struct gatt_db_attribute *attr, void *user_data) {
     struct client *cli = user_data;
     uint16_t handle, value_handle;
@@ -441,6 +468,18 @@ static void subscribe_chrc(struct gatt_db_attribute *attr, void *user_data) {
             return;
         }
 
+        cli->keepalive_handle = value_handle;
+        if (keepalive_timer_fd == -1) {
+            keepalive_timer_fd = mainloop_add_timeout(DT24_KEEPALIVE_INTERVAL_MS,
+                                                     keepalive_timer_cb, cli, NULL);
+            if (keepalive_timer_fd < 0) {
+                daemon_log(LOG_ERR, "Failed to arm DT24 keep-alive timer");
+                keepalive_timer_fd = -1;
+            } else {
+                daemon_log(LOG_INFO, "DT24 keep-alive armed, %d ms",
+                           DT24_KEEPALIVE_INTERVAL_MS);
+            }
+        }
     }
     if (uuid.value.u32 == 0x192a0000) {
         cli->battery_handle = value_handle;
@@ -2324,6 +2363,10 @@ int main(int argc, char *argv[]) {
         if (rssi_timer_fd != -1) {
             mainloop_remove_timeout(rssi_timer_fd);
             rssi_timer_fd = -1;
+        }
+        if (keepalive_timer_fd != -1) {
+            mainloop_remove_timeout(keepalive_timer_fd);
+            keepalive_timer_fd = -1;
         }
 	if (sleep_before_reconnect) {
            daemon_log(LOG_INFO, "Sleep 60 seconds before reconnect");
