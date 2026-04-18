@@ -443,6 +443,8 @@ static void keepalive_timer_cb(__attribute__((unused)) int id, void *user_data) 
                                                dt24_keepalive_payload,
                                                sizeof(dt24_keepalive_payload))) {
         daemon_log(LOG_WARNING, "DT24 keep-alive write failed");
+    } else {
+        daemon_log(LOG_INFO, "DT24 keep-alive success");
     }
 }
 
