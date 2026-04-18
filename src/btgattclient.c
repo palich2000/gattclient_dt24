@@ -430,7 +430,7 @@ static void notify_cb(uint16_t value_handle, const uint8_t *value,
 static void notify_battery_cb(uint16_t value_handle, const uint8_t *value,
                               uint16_t length, __attribute__((unused)) void *user_data);
 
-static void keepalive_timer_cb(__attribute__((unused)) int id, void *user_data) {
+static void keepalive_timer_cb(int fd, void *user_data) {
     struct client *cli = user_data;
 
     if (!cli || !cli->gatt || !cli->keepalive_handle) {
@@ -449,6 +449,9 @@ static void keepalive_timer_cb(__attribute__((unused)) int id, void *user_data) 
         daemon_log(LOG_WARNING, "DT24 keep-alive write failed");
     } else {
         daemon_log(LOG_INFO, "DT24 keep-alive success");
+    }
+    if (mainloop_modify_timeout(fd, DT24_KEEPALIVE_INTERVAL_MS) < 0) {
+        daemon_log(LOG_ERR, "Failed to re-arm DT24 keep-alive timer");
     }
 }
 
