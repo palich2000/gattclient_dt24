@@ -72,15 +72,6 @@ static int batt_timer_interval = 0;
 static int rssi_timer_fd = -1;
 static int rssi_timer_interval = 0;
 
-/* Atorch DT24 stops streaming notifications after a few minutes of idle.
- * We keep it awake by periodically writing a no-op command frame to the
- * same characteristic we receive notifications from (0xffe1, props 0x1c). */
-#define DT24_KEEPALIVE_INTERVAL_MS 3000
-static int keepalive_timer_fd = -1;
-static const uint8_t dt24_keepalive_payload[10] = {
-        0xb1, 0xb2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-
 #define PRLOGE(format, ...) \
     while(1) {     \
     if (disable_console) { \
@@ -132,8 +123,6 @@ struct client {
     uint16_t hci_handle;
     /// battery handle
     uint16_t battery_handle;
-    /// DT24 notify/write char handle (0xffe1)
-    uint16_t keepalive_handle;
 };
 
 /**
@@ -430,31 +419,6 @@ static void notify_cb(uint16_t value_handle, const uint8_t *value,
 static void notify_battery_cb(uint16_t value_handle, const uint8_t *value,
                               uint16_t length, __attribute__((unused)) void *user_data);
 
-static void keepalive_timer_cb(int fd, void *user_data) {
-    struct client *cli = user_data;
-
-    if (!cli || !cli->gatt || !cli->keepalive_handle) {
-        daemon_log(LOG_ERR, "Invalid client or keep-alive handle");
-        return;
-    }
-    if (!bt_gatt_client_is_ready(cli->gatt)) {
-        daemon_log(LOG_ERR, "GATT client is not ready");
-        return;
-    }
-
-    if (!bt_gatt_client_write_without_response(cli->gatt, cli->keepalive_handle,
-                                               false,
-                                               dt24_keepalive_payload,
-                                               sizeof(dt24_keepalive_payload))) {
-        daemon_log(LOG_WARNING, "DT24 keep-alive write failed");
-    } else {
-        daemon_log(LOG_INFO, "DT24 keep-alive success");
-    }
-    if (mainloop_modify_timeout(fd, DT24_KEEPALIVE_INTERVAL_MS) < 0) {
-        daemon_log(LOG_ERR, "Failed to re-arm DT24 keep-alive timer");
-    }
-}
-
 static void subscribe_chrc(struct gatt_db_attribute *attr, void *user_data) {
     struct client *cli = user_data;
     uint16_t handle, value_handle;
@@ -475,19 +439,6 @@ static void subscribe_chrc(struct gatt_db_attribute *attr, void *user_data) {
         if (!id) {
             daemon_log(LOG_ERR, "Failed to register notify handler");
             return;
-        }
-
-        cli->keepalive_handle = value_handle;
-        if (keepalive_timer_fd == -1) {
-            keepalive_timer_fd = mainloop_add_timeout(DT24_KEEPALIVE_INTERVAL_MS,
-                                                     keepalive_timer_cb, cli, NULL);
-            if (keepalive_timer_fd < 0) {
-                daemon_log(LOG_ERR, "Failed to arm DT24 keep-alive timer");
-                keepalive_timer_fd = -1;
-            } else {
-                daemon_log(LOG_INFO, "DT24 keep-alive armed, %d ms",
-                           DT24_KEEPALIVE_INTERVAL_MS);
-            }
         }
     }
     if (uuid.value.u32 == 0x192a0000) {
@@ -1476,26 +1427,44 @@ static void notify_battery_cb(__attribute__((unused)) uint16_t value_handle, con
  */
 static void notify_cb(__attribute__((unused)) uint16_t value_handle, const uint8_t *_value,
                       uint16_t length, __attribute__((unused)) void *user_data) {
-    static uint8_t * buffer = NULL;
-    static int buffer_size = 0;
-    if (!buffer) {
-        buffer = malloc(512);
-        if (!buffer) {
-            daemon_log(LOG_ERR, "Failed to allocate memory for notify buffer");
-            return;
+    /* The DT24 sends 36-byte frames prefixed with ff 55, fragmented across
+     * multiple notifications. We treat input as a byte stream and always
+     * resync on the ff 55 header — otherwise a single mid-frame subscribe or
+     * missed fragment would stall the parser until the next reconnect. */
+    static uint8_t frame[36];
+    static int pos = 0;
+
+    for (uint16_t i = 0; i < length; i++) {
+        uint8_t b = _value[i];
+
+        if (pos == 0) {
+            if (b == 0xff) {
+                frame[pos++] = b;
+            }
+            continue;
         }
-    }
-    // append data to buffer
-    if (buffer_size<36) {
-        memmove(&buffer[buffer_size], _value, length);
-        buffer_size += length;
-    }
-    if (buffer_size == 36 && buffer[0] == 0xff && buffer[1] == 0x55) {
-        double voltage = dl24_get_24bit(buffer, 4) * 0.1f;
-        double current = dl24_get_24bit(buffer, 7) * 0.001f;
-        double temp = dl24_get_16bit(buffer, 24);
-        double cap_ah = dl24_get_24bit(buffer, 10) * 0.01f;
-        double cap_wh = dl24_get_32bit(buffer, 13) * 10.0f;
+        if (pos == 1) {
+            if (b == 0x55) {
+                frame[pos++] = b;
+            } else if (b == 0xff) {
+                /* repeated 0xff — keep the last one as start candidate */
+                frame[0] = 0xff;
+                pos = 1;
+            } else {
+                pos = 0;
+            }
+            continue;
+        }
+
+        frame[pos++] = b;
+        if (pos < 36)
+            continue;
+
+        double voltage = dl24_get_24bit(frame, 4) * 0.1f;
+        double current = dl24_get_24bit(frame, 7) * 0.001f;
+        double temp = dl24_get_16bit(frame, 24);
+        double cap_ah = dl24_get_24bit(frame, 10) * 0.01f;
+        double cap_wh = dl24_get_32bit(frame, 13) * 10.0f;
 
         static double p_voltage = NAN;
         static double p_current = NAN;
@@ -1507,24 +1476,18 @@ static void notify_cb(__attribute__((unused)) uint16_t value_handle, const uint8
             mosq_gather_data(current, voltage);
         }
 
-        if (voltage != p_voltage || current != p_current || temp != p_temp || cap_ah != p_cap_ah ||
-            cap_wh != p_cap_wh) {
+        if (voltage != p_voltage || current != p_current || temp != p_temp ||
+            cap_ah != p_cap_ah || cap_wh != p_cap_wh) {
             p_voltage = voltage;
             p_current = current;
             p_temp = temp;
             p_cap_ah = cap_ah;
             p_cap_wh = cap_wh;
-            daemon_log(LOG_INFO, "%.2fV %.2fA %.0fC %.2fAh %.2fWh", voltage, current, temp, cap_ah, cap_wh);
+            daemon_log(LOG_INFO, "%.2fV %.2fA %.0fC %.2fAh %.2fWh",
+                       voltage, current, temp, cap_ah, cap_wh);
         }
-        buffer_size = 0;
-    } if (buffer_size > 36) {
-        daemon_log(LOG_WARNING, "Notify buffer overflow, resetting buffer");
-        buffer_size = 0;
+        pos = 0;
     }
-    // } else {
-    //     daemon_log(LOG_ERR, "Handle Value Not/Ind: 0x%04x - (%u bytes)", value_handle, length);
-    //     hex_dump(_value, length);
-    // }
 }
 // ff 55 01 02 00 01 0e 00 4d c8 00 09 3c 00 00 00 3e 00 00 34 00 00 00 00 00 17 00 06 05 08 3c 00 00 00 00 23
 // ff 55 01 02 00 01 07 00 0f 8f 00 04 80 00 00 00 1e 00 00 34 00 00 00 00 00 14 00 03 3b 05 3c 00 00 00 00 23
@@ -2373,17 +2336,13 @@ int main(int argc, char *argv[]) {
             mainloop_remove_timeout(rssi_timer_fd);
             rssi_timer_fd = -1;
         }
-        if (keepalive_timer_fd != -1) {
-            mainloop_remove_timeout(keepalive_timer_fd);
-            keepalive_timer_fd = -1;
-        }
-	if (sleep_before_reconnect) {
-           daemon_log(LOG_INFO, "Sleep 60 seconds before reconnect");
-           for (int i=0; i<60; i++) {
-               if (terminate) break;
-               sleep(1);
-	   }
-	}
+	    if (sleep_before_reconnect) {
+               daemon_log(LOG_INFO, "Sleep 60 seconds before reconnect");
+               for (int i=0; i<60; i++) {
+                   if (terminate) break;
+                   sleep(1);
+	       }
+	    }
     }
     daemon_log(LOG_INFO, "Shutting down...");
 
