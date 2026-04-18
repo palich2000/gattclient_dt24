@@ -433,10 +433,14 @@ static void notify_battery_cb(uint16_t value_handle, const uint8_t *value,
 static void keepalive_timer_cb(__attribute__((unused)) int id, void *user_data) {
     struct client *cli = user_data;
 
-    if (!cli || !cli->gatt || !cli->keepalive_handle)
+    if (!cli || !cli->gatt || !cli->keepalive_handle) {
+        daemon_log(LOG_ERR, "Invalid client or keep-alive handle");
         return;
-    if (!bt_gatt_client_is_ready(cli->gatt))
+    }
+    if (!bt_gatt_client_is_ready(cli->gatt)) {
+        daemon_log(LOG_ERR, "GATT client is not ready");
         return;
+    }
 
     if (!bt_gatt_client_write_without_response(cli->gatt, cli->keepalive_handle,
                                                false,
