@@ -1,0 +1,31 @@
+# Copy to /etc/ble-mqtt/combined.ini, owner palich, mode 0600.
+# Do not put production credentials in this example or in Git.
+[bluetooth]
+adapter=hci0
+mac=70:BF:48:9E:1B:42
+address_type=public
+security=low
+mtu=48
+
+[ruuvi]
+mac=DE:4D:F8:3F:DA:91
+topic_prefix=tele/ruuvi1
+
+[mqtt]
+enabled=true
+host=mosquitto
+port=8883
+# Existing installation uses plaintext on this port; TLS is explicit.
+tls=false
+client_id=ble-mqtt-zigbeegate
+topic_prefix=tele/hass-batt
+username=
+password=
+keepalive=60
+
+[app]
+publish_interval=10
+stale_timeout=120
+log_level=6
+thermal_zone=0
+console_json=false

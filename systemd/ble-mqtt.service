@@ -1,0 +1,33 @@
+[Unit]
+Description=DT24 and Ruuvi BLE sensors to MQTT
+Wants=bluetooth.service network-online.target
+After=bluetooth.service network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=palich
+Group=palich
+WorkingDirectory=/
+ExecStartPre=/usr/local/libexec/ble-mqtt/gattclient-ruuvi -C /etc/ble-mqtt/combined.ini --check-config
+ExecStart=/usr/local/libexec/ble-mqtt/gattclient-ruuvi -C /etc/ble-mqtt/combined.ini -c
+Restart=on-failure
+RestartSec=10s
+TimeoutStopSec=20s
+KillMode=control-group
+StandardInput=null
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ble-mqtt
+Environment=TERM=dumb
+UMask=0077
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_BLUETOOTH AF_NETLINK
+
+[Install]
+WantedBy=multi-user.target

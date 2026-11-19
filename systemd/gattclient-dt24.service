@@ -1,0 +1,32 @@
+[Unit]
+Description=ATORCH DT24 BLE power meter to MQTT
+Wants=bluetooth.service network-online.target
+After=bluetooth.service network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=palich
+WorkingDirectory=/
+ExecStartPre=/usr/local/libexec/ble-mqtt/gattclient -C /etc/ble-mqtt/dt24.ini --check-config
+ExecStart=/usr/local/libexec/ble-mqtt/gattclient -C /etc/ble-mqtt/dt24.ini -c
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=15s
+KillMode=control-group
+StandardInput=null
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gattclient-dt24
+UMask=0077
+# Direct HCI/L2CAP sockets, unlike the D-Bus-only Ruuvi reader.
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_BLUETOOTH
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+# Copy to a private file and set the broker credentials before deployment.
+# Existing zigbeegate installation is NOT changed by building this repository.
+[bluetooth]
+adapter=hci0
+mac=70:BF:48:9E:1B:42
+address_type=public
+mtu=48
+security=low
+
+[mqtt]
+enabled=true
+host=mosquitto
+port=8883
+client_id=gatt@hass-batt
+topic_prefix=tele/hass-batt
+username=
+password=
+keepalive=60
+tls=false
+ca_file=
+cert_file=
+key_file=
+
+[app]
+publish_interval=10
+stale_timeout=120
+log_level=6
+thermal_zone=0

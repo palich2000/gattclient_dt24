@@ -1,0 +1,26 @@
+# Copy to a private file (chmod 600) before adding credentials.
+[bluetooth]
+adapter=hci0
+mac=DE:4D:F8:3F:DA:91
+
+[mqtt]
+# Console-only by default. Enable after choosing a unique topic/client ID.
+enabled=false
+host=mosquitto
+port=8883
+client_id=ruuvi-rasp4-test-de4df83fda91
+topic_prefix=test/ruuvi/de4df83fda91
+username=
+password=
+keepalive=60
+# The port does not enable TLS. For TLS set true and supply a trusted CA.
+tls=false
+ca_file=
+cert_file=
+key_file=
+
+[app]
+publish_interval=10
+stale_timeout=120
+# Syslog priorities: 3=error, 4=warning, 6=info, 7=debug.
+log_level=6

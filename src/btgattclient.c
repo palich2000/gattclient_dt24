@@ -63,6 +63,14 @@
 #include "gatt-client.h"
 #include "mqtt.h"
 #include "dlog.h"
+#ifdef GATT_RUUVI
+#include "ruuvi_raw.h"
+#include <gio/gio.h>
+static unsigned long combined_dt24_frames, combined_health_frames;
+static double combined_last_dt24, combined_next_health;
+static bool combined_mode;
+static bool combined_console_json=true;
+#endif
 
 #define ATT_CID 4
 
@@ -1460,6 +1468,14 @@ static void notify_cb(__attribute__((unused)) uint16_t value_handle, const uint8
         if (pos < 36)
             continue;
 
+#ifdef GATT_RUUVI
+        if (combined_mode) {
+            combined_dt24_frames++;
+            combined_last_dt24=g_get_monotonic_time()/1000000.0;
+            if (combined_dt24_frames==1)
+                daemon_log(LOG_INFO,"DT24 received frames: %lu",combined_dt24_frames);
+        }
+#endif
         double voltage = dl24_get_24bit(frame, 4) * 0.1f;
         double current = dl24_get_24bit(frame, 7) * 0.001f;
         double temp = dl24_get_16bit(frame, 24);
@@ -1483,7 +1499,7 @@ static void notify_cb(__attribute__((unused)) uint16_t value_handle, const uint8
             p_temp = temp;
             p_cap_ah = cap_ah;
             p_cap_wh = cap_wh;
-            daemon_log(LOG_INFO, "%.2fV %.2fA %.0fC %.2fAh %.2fWh",
+            daemon_log(LOG_DEBUG, "%.2fV %.2fA %.0fC %.2fAh %.2fWh",
                        voltage, current, temp, cap_ah, cap_wh);
         }
         pos = 0;
@@ -2117,6 +2133,11 @@ static void usage(void) {
     printf("Usage:\n\tbtgatt-client [options]\n");
 
     printf("Options:\n"
+           "\t-C, --config FILE\t\tINI configuration (required for MQTT)\n"
+           "\t--check-config\t\t\tValidate without Bluetooth/MQTT\n"
+           "\t-D\t\t\t\tDisable MQTT\n"
+           "\t-c\t\t\t\tDisable interactive console\n"
+           "\t-H NAME\t\t\tOverride MQTT prefix to tele/NAME\n"
            "\t-i, --index <id>\t\tSpecify adapter index, e.g. hci0\n"
            "\t-d, --dest <addr>\t\tSpecify the destination address\n"
            "\t-t, --type [random|public] \tSpecify the LE address type\n"
@@ -2126,11 +2147,70 @@ static void usage(void) {
            "\t-v, --verbose\t\t\tEnable extra logging\n"
            "\t-h, --help\t\t\tDisplay help\n");
 
+#ifdef GATT_RUUVI
+    printf("\t--ruuvi MAC\tReceive RAWv2 on the same adapter (raw HCI)\n"
+           "\t--duration N\tBound combined session in seconds after connection\n");
+#endif
     printf("Example:\n"
            "btgattclient -v -d C4:BE:84:70:29:04\n");
 }
 
+#ifdef GATT_RUUVI
+static void combined_publish(const char *json,bool fresh,void *data) {
+    const struct app_config *config=data;
+    double now=g_get_monotonic_time()/1000000.0;
+    if (!combined_next_health) combined_next_health=now+60;
+    if (now>=combined_next_health) {
+        double age=combined_dt24_frames?now-combined_last_dt24:-1.0;
+        bool dt_fresh=age>=0 && age<=config->stale_timeout;
+        bool dt_mqtt=mosq_connected(false),ruuvi_mqtt=mosq_connected(true);
+        daemon_log(dt_fresh && (disable_mqtt || (dt_mqtt && ruuvi_mqtt))?LOG_INFO:LOG_WARNING,
+            "DT24 health: frames=%lu data_age=%.1fs fresh=%s; MQTT dt24=%s ruuvi=%s",
+            combined_dt24_frames-combined_health_frames,age,dt_fresh?"yes":"no",
+            disable_mqtt?"disabled":dt_mqtt?"connected":"disconnected",
+            disable_mqtt?"disabled":ruuvi_mqtt?"connected":"disconnected");
+        combined_health_frames=combined_dt24_frames;combined_next_health=now+60;
+    }
+    if (json && combined_console_json) { puts(json); fflush(stdout); }
+    if (!disable_mqtt) mosq_ruuvi(json,fresh);
+}
+static void combined_timeout(int id,void *data) {
+    (void)id;(void)data;
+    terminate=true;
+    mainloop_exit_success();
+}
+static bool combined_idle(const char *adapter) {
+    GError *error=NULL;
+    GDBusConnection *bus=g_bus_get_sync(G_BUS_TYPE_SYSTEM,NULL,&error);
+    GVariant *reply=NULL;
+    if (bus) {
+        char *path=g_strdup_printf("/org/bluez/%s",adapter);
+        reply=g_dbus_connection_call_sync(bus,"org.bluez",path,
+            "org.freedesktop.DBus.Properties","Get",
+            g_variant_new("(ss)","org.bluez.Adapter1","Discovering"),
+            G_VARIANT_TYPE("(v)"),G_DBUS_CALL_FLAGS_NONE,3000,NULL,&error);
+        g_free(path);
+    }
+    bool idle=false;
+    if (reply) {
+        GVariant *value;
+        g_variant_get(reply,"(v)",&value);
+        idle=g_variant_is_of_type(value,G_VARIANT_TYPE_BOOLEAN) && !g_variant_get_boolean(value);
+        g_variant_unref(value); g_variant_unref(reply);
+    }
+    if (!idle) fprintf(stderr,"Combined mode requires idle BlueZ discovery: %s\n",error?error->message:"another scanner is active");
+    g_clear_error(&error);
+    if (bus) g_object_unref(bus);
+    return idle;
+}
+#endif
 static struct option main_options[] = {
+        {"config",         1, 0, 'C'},
+        {"check-config",   0, 0, 1000},
+#ifdef GATT_RUUVI
+        {"ruuvi",          1, 0, 1001},
+        {"duration",       1, 0, 1002},
+#endif
         {"index",          1, 0, 'i'},
         {"dest",           1, 0, 'd'},
         {"type",           1, 0, 't'},
@@ -2153,6 +2233,11 @@ extern char *hostname;
 
 int main(int argc, char *argv[]) {
     int opt;
+#ifdef GATT_RUUVI
+    const char *ruuvi_mac=NULL;
+    unsigned duration=0;
+    int combined_result=EXIT_SUCCESS;
+#endif
     int sec = BT_SECURITY_LOW;
     uint16_t mtu = 0;
     uint8_t dst_type = BDADDR_LE_PUBLIC;
@@ -2164,16 +2249,57 @@ int main(int argc, char *argv[]) {
     struct client *cli = NULL;
 
     daemon_log_upto(LOG_INFO);
-
-    while ((opt = getopt_long(argc, argv, "+hvs:m:t:d:i:cH:D",
+    struct app_config cfg;
+    app_config_defaults(&cfg);
+    const char *config_path = NULL;
+    bool check_config = false, hostname_override = false;
+    /* First pass finds the config; the second pass applies ALL CLI overrides. */
+    while ((opt = getopt_long(argc, argv, "+hvs:m:t:d:i:cH:DC:", main_options, NULL)) != -1) {
+        if (opt == 'C') config_path = optarg;
+        if (opt == 'h') { usage(); return EXIT_SUCCESS; }
+    }
+    optind = 0;
+    GError *config_error = NULL;
+    if (config_path && !app_config_load(&cfg, config_path, &config_error)) {
+        fprintf(stderr,"Configuration: %s\n",config_error->message);
+        g_clear_error(&config_error); return EXIT_FAILURE;
+    }
+#ifdef GATT_RUUVI
+    /* The effective Ruuvi address is validated after CLI overrides. */
+    combined_console_json=cfg.console_json;
+#endif
+    dst_type = !strcmp(cfg.address_type,"random") ? BDADDR_LE_RANDOM : BDADDR_LE_PUBLIC;
+    sec = !strcmp(cfg.security,"high") ? BT_SECURITY_HIGH :
+          !strcmp(cfg.security,"medium") ? BT_SECURITY_MEDIUM : BT_SECURITY_LOW;
+    disable_mqtt = !cfg.mqtt_enabled;
+    while ((opt = getopt_long(argc, argv, "+hvs:m:t:d:i:cH:DC:",
                               main_options, NULL)) != -1) {
         switch (opt) {
+            case 'C':
+                break;
+#ifdef GATT_RUUVI
+            case 1001:
+                if (strlen(optarg)!=17) return EXIT_FAILURE;
+                g_strlcpy(cfg.ruuvi_mac,optarg,sizeof(cfg.ruuvi_mac));
+                break;
+            case 1002: {
+                char *end;
+                long value=strtol(optarg,&end,10);
+                if (!*optarg || *end || value<1 || value>86400) return EXIT_FAILURE;
+                duration=(unsigned)value;
+                break;
+            }
+#endif
+            case 1000:
+                check_config = true;
+                break;
             case 'D':
                 daemon_log(LOG_INFO, "Disable mqtt");
                 disable_mqtt = true;
                 break;
             case 'H':
                 hostname = optarg;
+                hostname_override = true;
                 break;
             case 'c':
                 disable_console = true;
@@ -2195,6 +2321,7 @@ int main(int argc, char *argv[]) {
                     PRLOGE("Invalid security level");
                     return EXIT_FAILURE;
                 }
+                g_strlcpy(cfg.security,optarg,sizeof(cfg.security));
                 break;
             case 'm': {
                 int arg;
@@ -2210,7 +2337,7 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
 
-                mtu = (uint16_t) arg;
+                cfg.mtu = arg;
                 break;
             }
             case 't':
@@ -2223,6 +2350,7 @@ int main(int argc, char *argv[]) {
                             "Allowed types: random, public");
                     return EXIT_FAILURE;
                 }
+                g_strlcpy(cfg.address_type,optarg,sizeof(cfg.address_type));
                 break;
             case 'd':
                 if (str2ba(optarg, &dst_addr) < 0) {
@@ -2231,16 +2359,14 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
 
+                if (strlen(optarg) >= sizeof(cfg.mac)) return EXIT_FAILURE;
+                g_strlcpy(cfg.mac,optarg,sizeof(cfg.mac));
                 dst_addr_given = true;
                 break;
 
             case 'i':
-                dev_id = hci_devid(optarg);
-                if (dev_id < 0) {
-                    perror("Invalid adapter");
-                    return EXIT_FAILURE;
-                }
-
+                if (strlen(optarg) >= sizeof(cfg.adapter)) return EXIT_FAILURE;
+                g_strlcpy(cfg.adapter,optarg,sizeof(cfg.adapter));
                 break;
             default:
                 PRLOGE("Invalid option: %c", opt);
@@ -2262,6 +2388,58 @@ int main(int argc, char *argv[]) {
         return EXIT_SUCCESS;
     }
 
+    if (!config_path && !disable_mqtt) {
+        fprintf(stderr,"MQTT requires -C FILE; embedded credentials have been removed\n");
+        return EXIT_FAILURE;
+    }
+    if (hostname_override || !cfg.topic_prefix[0]) {
+        if (snprintf(cfg.topic_prefix,sizeof(cfg.topic_prefix),"tele/%s",hostname) >= (int)sizeof(cfg.topic_prefix)) return EXIT_FAILURE;
+    }
+    if (hostname_override || !cfg.client_id[0]) {
+        if (snprintf(cfg.client_id,sizeof(cfg.client_id),"gatt@%s",hostname) >= (int)sizeof(cfg.client_id)) return EXIT_FAILURE;
+    }
+#ifdef GATT_RUUVI
+    ruuvi_mac=cfg.ruuvi_mac[0]?cfg.ruuvi_mac:NULL;
+#else
+    if (cfg.ruuvi_mac[0] || cfg.ruuvi_topic_prefix[0]) {
+        fprintf(stderr,"Ruuvi configuration requires gattclient-ruuvi\n");
+        return EXIT_FAILURE;
+    }
+#endif
+    cfg.mqtt_enabled=!disable_mqtt;
+    if (!app_config_validate(&cfg,&config_error)) {
+        fprintf(stderr,"Configuration: %s\n",config_error->message);
+        g_clear_error(&config_error); return EXIT_FAILURE;
+    }
+    mtu=(uint16_t)cfg.mtu;
+    if (!dst_addr_given) {
+        if (str2ba(cfg.mac,&dst_addr) < 0) return EXIT_FAILURE;
+        dst_addr_given=true;
+    }
+#ifdef GATT_RUUVI
+    if (ruuvi_mac) {
+        combined_mode=true;
+        disable_console=true;
+    }
+    if (duration && !combined_mode) { fprintf(stderr,"--duration requires --ruuvi\n");return EXIT_FAILURE; }
+#endif
+    if (check_config) {
+        printf("Configuration valid: adapter=%s mac=%s topic_prefix=%s mqtt=%s\n",
+            cfg.adapter,cfg.mac,cfg.topic_prefix,cfg.mqtt_enabled?"enabled":"disabled");
+        return EXIT_SUCCESS;
+    }
+    daemon_log_ident="gattclient";
+#ifdef GATT_RUUVI
+    if (combined_mode) {
+        daemon_log_ident="ble-mqtt";
+        /* Block before GIO/MQTT create threads; signalfd owns termination. */
+        sigemptyset(&mask);sigaddset(&mask,SIGINT);sigaddset(&mask,SIGTERM);
+        if (sigprocmask(SIG_BLOCK,&mask,NULL)<0) return EXIT_FAILURE;
+    }
+#endif
+    daemon_log_upto(cfg.log_level);
+    dev_id=hci_devid(cfg.adapter);
+    if (dev_id < 0) { perror("Invalid adapter"); return EXIT_FAILURE; }
     if (dev_id == -1)
         bacpy(&src_addr, BDADDR_ANY);
     else if (hci_devba(dev_id, &src_addr) < 0) {
@@ -2273,8 +2451,11 @@ int main(int argc, char *argv[]) {
         PRLOGE("Destination address required!");
         return EXIT_FAILURE;
     }
+#ifdef GATT_RUUVI
+    if (combined_mode && !combined_idle(cfg.adapter)) return EXIT_FAILURE;
+#endif
     if (!disable_mqtt) {
-        mosq_init("gatt");
+        if (!mosq_init(&cfg)) return EXIT_FAILURE;
     }
     /* create the mainloop resources */
 
@@ -2285,6 +2466,9 @@ int main(int argc, char *argv[]) {
             fd = l2cap_le_att_connect(&src_addr, &dst_addr, dst_type, sec);
             if (fd >= 0)
                 break;
+#ifdef GATT_RUUVI
+            if (combined_mode) { if (!disable_mqtt) mosq_destroy(); return EXIT_FAILURE; }
+#endif
             PRLOGE("Connection failed, try again...");
             sleep(5);
         }
@@ -2294,7 +2478,7 @@ int main(int argc, char *argv[]) {
             close(fd);
             return EXIT_FAILURE;
         }
-        cli->hci_socket = hci_open_dev(hci_get_route(NULL));
+        cli->hci_socket = hci_open_dev(dev_id);
         get_l2cap_handle(cli->fd, &cli->hci_handle);
         /* add input event from console */
         if (!disable_console) {
@@ -2313,6 +2497,22 @@ int main(int argc, char *argv[]) {
         /* add handler for process interrupted (SIGINT) or terminated (SIGTERM)*/
         mainloop_set_signal(&mask, signal_cb, NULL, NULL);
 
+#ifdef GATT_RUUVI
+        struct ruuvi_raw *raw=NULL;
+        if (combined_mode) {
+            raw=ruuvi_raw_start(dev_id,ruuvi_mac,&cfg,combined_publish,&cfg);
+            if (!raw) {
+                hci_close_dev(cli->hci_socket); client_destroy(cli);
+                if (!disable_mqtt) mosq_destroy();
+                return EXIT_FAILURE;
+            }
+            if (duration && mainloop_add_timeout(duration*1000,combined_timeout,NULL,NULL)<0) {
+                ruuvi_raw_stop(raw); hci_close_dev(cli->hci_socket); client_destroy(cli);
+                if (!disable_mqtt) mosq_destroy();
+                return EXIT_FAILURE;
+            }
+        }
+#endif
         print_prompt();
 
         /* epoll main loop call
@@ -2321,12 +2521,22 @@ int main(int argc, char *argv[]) {
          *
          */
         bool sleep_before_reconnect = false;
-        if (mainloop_run() == EXIT_SUCCESS) {
+        int loop_result=mainloop_run();
+        if (loop_result == EXIT_SUCCESS) {
             daemon_log(LOG_INFO, "Main loop terminated with success");
             if (!terminate) {
                 sleep_before_reconnect = true;
             }
         }
+#ifdef GATT_RUUVI
+        if (combined_mode) {
+            ruuvi_raw_stop(raw);
+            daemon_log(LOG_INFO,"Combined DT24 session: %lu frames",combined_dt24_frames);
+            combined_result=(terminate && loop_result==EXIT_SUCCESS)?EXIT_SUCCESS:EXIT_FAILURE;
+            terminate=true;
+            sleep_before_reconnect=false;
+        }
+#endif
         hci_close_dev(cli->hci_socket);
         if (batt_timer_fd != -1) {
             mainloop_remove_timeout(batt_timer_fd);
@@ -2351,6 +2561,9 @@ int main(int argc, char *argv[]) {
     if (!disable_mqtt) {
         mosq_destroy();
     }
+#ifdef GATT_RUUVI
+    return combined_result;
+#endif
 
     return EXIT_SUCCESS;
 }

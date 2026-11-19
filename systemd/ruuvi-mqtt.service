@@ -1,0 +1,30 @@
+[Unit]
+Description=Ruuvi BLE weather sensor to MQTT
+Wants=bluetooth.service network-online.target
+After=bluetooth.service network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=palich
+WorkingDirectory=/
+ExecStartPre=/usr/local/libexec/ble-mqtt/ruuvi-mqtt -C /etc/ble-mqtt/ruuvi.ini --check-config
+ExecStart=/usr/local/libexec/ble-mqtt/ruuvi-mqtt -C /etc/ble-mqtt/ruuvi.ini
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=15s
+KillMode=control-group
+StandardInput=null
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ruuvi-mqtt
+UMask=0077
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

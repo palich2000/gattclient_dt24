@@ -1,17 +1,9 @@
-/**
-* @file mqtt.h
-* @author palich (y.palich.t@gmail.com)
-*
-* @brief
-*
-*/
 #ifndef SRC_MQTT_H
 #define SRC_MQTT_H
-
-void mosq_init(const char * progname);
-
+#include "app_config.h"
+bool mosq_init(const struct app_config *config);
 void mosq_destroy(void);
-
+bool mosq_connected(bool ruuvi);
+void mosq_ruuvi(const char *json, bool available);
 void mosq_gather_data(double current, double voltage);
-
-#endif //SRC_MQTT_H
+#endif
